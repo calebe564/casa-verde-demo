@@ -1,5 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/((?!images/|videos/).*)", "destination": "/index.html" }
-  ]
-}
