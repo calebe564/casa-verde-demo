@@ -1,0 +1,13 @@
+{
+  "name": "Cardápio Digital — Equipe",
+  "short_name": "Equipe",
+  "start_url": "/entrar",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#14100E",
+  "theme_color": "#14100E",
+  "icons": [
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
