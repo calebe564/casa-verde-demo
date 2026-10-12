@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Casa Verde — Cardápio Digital</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --ink:oklch(0.183 0.016 260); --paper:oklch(0.955 0.008 255); --card:oklch(1 0 0);
+    --line:oklch(0.888 0.015 258); --panel:oklch(0.971 0.006 262);
+    --ember:oklch(0.655 0.225 10); --ember-ink:oklch(0.94 0.045 15); --gold:oklch(0.72 0.16 40);
+    --muted:oklch(0.55 0.025 260); --ok:#3C7A4E;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body.booting .app, body.booting .roleview, body.booting .demo-switch{visibility:hidden;}
+  #splash{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:#14100E;color:#f3e9e1;z-index:5;font:600 14px 'Inter',system-ui,sans-serif;letter-spacing:.04em;}
+  body.booting #splash{display:flex;}
+  .langsw{position:absolute;top:12px;right:14px;display:flex;gap:4px;z-index:6;}
+  .langsw button{border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.35);color:#fff;border-radius:8px;padding:4px 8px;font:600 11px 'Inter',sans-serif;cursor:pointer;}
+  .langsw button.on{background:#fff;color:#14100E;}
+  .peakbars{display:flex;align-items:flex-end;gap:3px;height:90px;margin-top:8px;}
+  .peakbars i{flex:1;background:var(--ember,#ff6a3d);border-radius:3px 3px 0 0;min-height:2px;opacity:.9;}
+  .peaklabels{display:flex;gap:3px;font-size:10px;color:var(--muted);}
+  .peaklabels span{flex:1;text-align:center;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.display{font-family:'Anton',sans-serif;font-weight:400;letter-spacing:.01em;text-transform:uppercase;}
+  button{font-family:inherit;}
+  .app{max-width:480px;margin:0 auto;min-height:100%;position:relative;background:var(--paper);}
+  .wide{max-width:880px;}
+
+  /* Mode switch (demo only, not part of real product) */
+  .demo-switch{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px;left:10px;z-index:50;display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.12);overflow-x:auto;justify-content:flex-end;}
+  .demo-switch button{border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;padding:6px 10px;border-radius:16px;cursor:pointer;}
+  .demo-switch button.active{background:var(--ink);color:var(--paper);}
+
+  /* ---- CLIENTE ---- */
+  #cliente{display:none;}
+  #cliente.on{display:block;}
+  .hero{padding:22px 20px 14px;position:relative;overflow:hidden;}
+  .hero.grill{background:
+    radial-gradient(ellipse 85% 70% at 50% 125%, rgba(232,83,29,.55), transparent 70%),
+    radial-gradient(circle at 12% 105%, rgba(255,170,60,.28), transparent 42%),
+    radial-gradient(circle at 90% 110%, rgba(255,120,40,.22), transparent 40%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 2px, transparent 2px 15px),
+    linear-gradient(180deg,#1d1411 0%,#14100E 100%);
+    border-bottom:1px solid var(--line);}
+  .heroinfo{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+  .infochip{font-size:11.5px;font-weight:500;color:var(--ink);background:rgba(127,127,127,.16);border:1px solid var(--line);border-radius:14px;padding:5px 10px;text-decoration:none;}
+  a.infochip:hover{border-color:var(--ember);}
+  .mesa-pill{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--ember);background:var(--ember-ink);border-radius:20px;padding:5px 12px;}
+  .rname{margin:10px 0 2px;font-size:28px;}
+  .rsub{color:var(--muted);font-size:14px;margin:0;}
+  .quickrow{display:flex;gap:8px;align-items:center;overflow-x:auto;padding:12px 20px 0;scrollbar-width:none;}
+  .qlabel{font-size:12px;color:var(--muted);white-space:nowrap;flex:none;}
+  .qchip{flex:none;border:1px solid var(--line,rgba(255,255,255,.18));background:transparent;color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .qchip:active{transform:scale(.97);}
+  .qchip:disabled{opacity:.5;}
+  .cats{display:flex;gap:8px;overflow-x:auto;padding:14px 20px 6px;scrollbar-width:none;}
+  .cats::-webkit-scrollbar{display:none;}
+  .cat{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;}
+  .cat.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .grid{padding:8px 20px 100px;display:flex;flex-direction:column;gap:14px;}
+  .item{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;cursor:pointer;text-align:left;width:100%;}
+  .thumb{width:84px;height:84px;border-radius:12px;flex:none;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--gold),var(--ember));}
+  .thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;z-index:2;}
+  .kbimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+  .dishvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .thumb.off{background:linear-gradient(135deg,#D8CBB8,#B7A78E);}
+  .itxt{flex:1;min-width:0;color:var(--ink);}
+  .itxt h3,.price{color:var(--ink);}
+  .itxt h3{margin:2px 0 4px;font-size:16px;}
+  .itxt p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.4;}
+  .irow{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .price{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;}
+  .badge{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:3px 8px;border-radius:10px;}
+  .badge.promo{background:var(--ember-ink);color:var(--ember);}
+  .badge.out{background:var(--line);color:var(--muted);}
+
+  .footerbar{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--card);border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));z-index:20;}
+  .callbtn{width:100%;background:var(--ember);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;}
+  .callbtn:disabled{opacity:.6;}
+  .callbtn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink);}
+  .searchbox{width:100%;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--ink);font-family:inherit;}
+  .searchbox::placeholder{color:var(--muted);}
+  .tagrow{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0 2px;}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;color:var(--muted);background:var(--panel);border-radius:6px;padding:2px 6px;}
+
+  .sheet-wrap{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;z-index:40;max-width:480px;margin:0 auto;}
+  .sheet-wrap.on{display:flex;}
+  .sheet{background:var(--card);width:100%;border-radius:20px 20px 0 0;max-height:88vh;overflow-y:auto;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));}
+  .sheet-media{aspect-ratio:4/3;background:linear-gradient(135deg,var(--gold),var(--ember));position:relative;border-radius:20px 20px 0 0;overflow:hidden;}
+  .sheet-media.off{background:linear-gradient(135deg,#D8CBB8,#B7A78E);}
+  .vlabel{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.45);color:#fff;font-size:11px;font-weight:700;padding:4px 9px;border-radius:10px;}
+  .sheet-media .center-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:#fff;}
+  .center-play .ring{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .center-play span{font-size:12px;font-weight:600;opacity:.9;}
+  .sheet-body{padding:18px 20px 4px;}
+  .sheet-body h2{margin:0 0 6px;font-size:22px;}
+  .sheet-body p{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.55;}
+  .sheet-price{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;margin-bottom:16px;}
+  .close-x{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.4);color:#fff;border:none;width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;z-index:2;}
+
+  .toast{pointer-events:none;position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:12px;font-size:13.5px;font-weight:600;opacity:0;transition:.25s;z-index:60;white-space:nowrap;}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---- MARCA DO RESTAURANTE NAS ÁREAS DA EQUIPE ---- */
+  #bgFixed{position:fixed;inset:0;z-index:0;pointer-events:none;background-size:cover;background-position:center top;transform:translateZ(0);display:none;}
+  body.hasbg #bgFixed{display:block;}
+  body.hasbg .app{background:transparent !important;}
+  .app,.roleview{position:relative;z-index:1;}
+  .item{content-visibility:auto;contain-intrinsic-size:auto 104px;}
+  button,a,.item{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+  .sbrand{position:relative;display:flex;align-items:center;gap:16px;padding:20px;margin:0 0 22px;border-radius:18px;border:1px solid var(--line);background-color:var(--card);background-size:cover;background-position:center;overflow:hidden;}
+  .sbrand .sblogo{flex:none;height:72px;width:72px;border-radius:14px;object-fit:cover;border:1px solid rgba(255,255,255,.2);background:#000;display:flex;align-items:center;justify-content:center;}
+  .sbrand .sbtxt{min-width:0;position:relative;}
+  .sbrand .sbname{font-family:'Anton','Inter',sans-serif;font-size:26px;line-height:1.1;margin:0;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.6);}
+  .sbrand .sbarea{margin:4px 0 0;font-size:13.5px;font-weight:600;color:#F2A33A;text-shadow:0 1px 6px rgba(0,0,0,.7);}
+  #painel .sbrand{margin-top:0;}
+  /* ---- PAINEL ---- */
+  #painel{display:none;padding:20px 20px 60px;}
+  #painel.on{display:block;}
+  .pheader{margin-bottom:18px;}
+  .pheader h1{font-size:24px;margin:0 0 4px;}
+  .pheader p{margin:0;color:var(--muted);font-size:13.5px;}
+  .ptabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--line);}
+  .ptab{background:none;border:none;padding:10px 4px;margin-right:18px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;}
+  .ptab.active{color:var(--ink);border-color:var(--ember);}
+  .pview{display:none;}
+  .pview.on{display:block;}
+
+  .call-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+  .call-row.new{border-color:var(--ember);}
+  .cl{display:flex;flex-direction:column;gap:3px;}
+  .cl .mesa{font-weight:700;font-size:15px;}
+  .cl .time{color:var(--muted);font-size:12px;}
+  .stbtn{border:none;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .stbtn.new{background:var(--ember-ink);color:var(--ember);}
+  .stbtn.done{background:rgba(60,122,78,.14);color:var(--ok);cursor:default;}
+
+  .qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center;}
+  .qcard canvas,.qcard img{width:100%;height:auto;border-radius:8px;}
+  .qcard .qname{font-weight:700;font-size:14px;margin:10px 0 2px;}
+  .qcard .qurl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);word-break:break-all;}
+  .addmesa{border:1.5px dashed var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;min-height:150px;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer;background:none;}
+
+  .catmgr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+  .catchip{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:6px 8px 6px 14px;font-size:13px;font-weight:600;}
+  .catchip button{border:none;background:var(--panel);color:var(--muted);width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:11px;line-height:1;}
+  .addcat{border:1.5px dashed var(--line);background:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;}
+  .prodhead{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px;}
+  .prodhead h3{margin:0;font-size:16px;font-weight:700;font-family:'Inter';text-transform:none;letter-spacing:0;}
+  .prow{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;}
+  .prow .pthumb{width:46px;height:46px;border-radius:10px;flex:none;background:linear-gradient(135deg,var(--gold),var(--ember));background-size:cover;background-position:center;}
+  .prow .pinfo{flex:1;min-width:0;}
+  .prow .pinfo b{font-size:14px;} .prow .pinfo span{display:block;color:var(--muted);font-size:12px;font-family:'JetBrains Mono',monospace;}
+  .switch{position:relative;width:38px;height:22px;flex:none;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;inset:0;background:var(--line);border-radius:20px;cursor:pointer;transition:.2s;}
+  .slider:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+  .switch input:checked + .slider{background:var(--ember);}
+  .switch input:checked + .slider:before{transform:translateX(16px);}
+  .pactions{display:flex;gap:4px;}
+  .icobtn{border:none;background:var(--panel);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:13px;}
+  .modal-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);align-items:center;justify-content:center;z-index:70;padding:20px;}
+  .modal-wrap.on{display:flex;}
+  .modal{background:var(--card);border-radius:16px;padding:22px;max-width:360px;width:100%;max-height:86vh;overflow-y:auto;}
+  .modal h3{margin:0 0 14px;font-size:18px;text-transform:none;letter-spacing:0;}
+  .modal label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:12px;}
+  .modal label.chk{display:flex;align-items:center;gap:8px;flex-direction:row-reverse;justify-content:flex-end;}
+  .modal input[type=text],.modal input[type=number],.modal select,.modal textarea{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px;font-family:'Inter';color:var(--ink);background:var(--paper);}
+  .modal-actions{display:flex;gap:8px;margin-top:6px;}
+  .modal-actions .stbtn{flex:1;text-align:center;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{position:absolute;top:0;left:0;width:100%;}
+    .printcard{page-break-inside:avoid;}
+  }
+  #printArea{display:none;}
+  @media print{ #printArea{display:block !important;} }
+  .printgrid{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:24px;}
+  .printcard{border:1.5px dashed #999;border-radius:12px;padding:22px;text-align:center;}
+  .printcard h4{font-family:'Anton';font-size:18px;margin:0 0 2px;text-transform:uppercase;}
+  .printcard .pmesa{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;margin:8px 0;}
+  .printcard .phint{font-size:11px;color:#666;margin-top:8px;}
+
+  @media (max-width:380px){ .qgrid{grid-template-columns:repeat(2,1fr);} }
+
+  /* ---- extra roles ---- */
+  .roleview{display:none;padding:70px 20px 60px;max-width:880px;margin:0 auto;}
+  .roleview.on{display:block;}
+  .rhead h1{font-size:22px;margin:0 0 4px;}
+  .rhead p{margin:0 0 18px;color:var(--muted);font-size:13.5px;}
+  .stub{border:1.5px dashed var(--line);border-radius:16px;padding:40px 20px;text-align:center;color:var(--muted);}
+  .stub .sicon{font-size:30px;margin-bottom:10px;}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px;}
+  .statcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .statcard .snum{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;}
+  .statcard .slabel{color:var(--muted);font-size:12px;margin-top:2px;}
+  .gotobtn{border:none;background:var(--ink);color:var(--paper);border-radius:12px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer;}
+
+  #superadmin{--ink:#EDEFF5;--paper:#0E1220;--card:#171B2E;--line:rgba(237,239,245,.12);--panel:#141828;--ember:#6C8CFF;--ember-ink:#1B2440;--muted:#8B90A8;}
+  #superadmin{background:var(--paper);color:var(--ink);min-height:100vh;}
+  .satable{width:100%;border-collapse:collapse;margin-top:6px;}
+  .satable th{text-align:left;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:0 10px 8px;}
+  .satable td{background:var(--card);padding:12px 10px;font-size:13.5px;border-top:6px solid var(--paper);}
+  .satable tr td:first-child{border-radius:10px 0 0 10px;font-weight:600;}
+  .satable tr td:last-child{border-radius:0 10px 10px 0;}
+  .sabadge{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:8px;}
+  .sabadge.on{background:rgba(108,140,255,.18);color:var(--ember);}
+  .sabadge.off{background:rgba(139,144,168,.18);color:var(--muted);}
+  .cartbadge{position:absolute;top:-6px;right:-6px;background:var(--ember);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
+  .cartbadge.pulse{animation:cartpulse .5s ease;}
+  @keyframes cartpulse{0%{transform:scale(1);}40%{transform:scale(1.5);}100%{transform:scale(1);}}
+  .optg{margin:0 0 14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .optg.bad{border-color:var(--ember);}
+  .optgh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:rgba(127,127,127,.08);}
+  .optgh b{font-size:14px;} .optgh small{color:var(--muted);font-size:12px;display:block;margin-top:2px;}
+  .optreq{font-size:11px;font-weight:700;background:var(--ink);color:var(--card);border-radius:8px;padding:3px 8px;white-space:nowrap;}
+  .optreq.ok{background:#2e9e5b;color:#fff;}
+  .opt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-top:1px solid var(--line);font-size:14px;cursor:pointer;}
+  .opt .op{color:var(--muted);font-size:12.5px;white-space:nowrap;}
+  .opt input[type=radio]{accent-color:var(--ember);width:18px;height:18px;flex:none;}
+  .optq{display:flex;align-items:center;gap:10px;flex:none;}
+  .optq button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:18px;line-height:1;cursor:pointer;}
+  .optq button:disabled{opacity:.35;} .optq span{min-width:16px;text-align:center;font-weight:700;font-size:14px;}
+  .oline{font-size:12px;color:var(--muted);line-height:1.4;margin-top:2px;}
+  .cartrow .oline{margin-left:26px;}
+  .cartrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .ordercard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+  .ordercard .omesa{font-weight:700;font-size:15px;margin-bottom:6px;}
+  .ordercard ul{margin:0 0 10px;padding-left:18px;font-size:13.5px;color:var(--ink);}
+</style>
+</head>
+<body class="booting">
+<div id="splash">Carregando…</div>
+<div id="bgFixed"></div>
+
+<div class="demo-switch" id="roleBar">
+  <button data-role="cliente" class="active">Cliente</button>
+  <button data-role="garcom">Garçom</button>
+  <button data-role="cozinha">Cozinha</button>
+  <button data-role="gerente">Gerente</button>
+  <button data-role="dono">Dono</button>
+  <button data-role="superadmin">Super Admin</button>
+</div>
+
+<!-- ===== CLIENTE ===== -->
+<div class="app" id="cliente">
+  <div class="langsw" id="langSw"><button data-l="pt">POR</button><button data-l="en">ING</button><button data-l="es">ESP</button></div>
+  <div class="hero">
+    <div id="heroLogo" style="margin-bottom:10px;"></div>
+    <span class="mesa-pill" id="mesaPill">📍 Mesa 03</span>
+    <h1 class="rname">Casa Verde</h1>
+    <p class="rsub">Cozinha autoral · Jantar 18h–23h · Pinheiros</p>
+    <div id="heroInfo" class="heroinfo"></div>
+  </div>
+  <div class="quickrow" id="quickRow">
+    <span class="qlabel" data-i="q_label">Precisa de algo?</span>
+    <button class="qchip" data-k="talher" data-i="talher">🍴 Talheres</button>
+    <button class="qchip" data-k="guardanapo" data-i="guardanapo">🧻 Guardanapos</button>
+    <button class="qchip" data-k="agua" data-i="agua">💧 Água</button>
+    <button class="qchip" data-k="gelo" data-i="gelo">🧊 Gelo</button>
+  </div>
+  <div class="cats" id="cats"></div>
+  <div style="padding:0 20px 10px;"><input id="search" class="searchbox" data-ip="search" placeholder="Buscar prato..." /></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="footerbar">
+    <div style="display:flex;gap:8px;">
+      <button class="callbtn" id="callBtnFooter" data-i="call" style="flex:2;">Chamar garçom</button>
+      <button class="callbtn ghost" id="billBtnFooter" data-i="bill" style="flex:1;">Fechar conta</button>
+      <button class="callbtn ghost" id="cartBtn" aria-label="Abrir sacola" style="flex:1;position:relative;">🛍️<span id="cartBadge" class="cartbadge" style="display:none;">0</span></button>
+    </div>
+  </div>
+
+  <div class="sheet-wrap" id="sheetWrap">
+    <div class="sheet">
+      <div class="sheet-media" id="sheetMedia">
+        <button class="close-x" id="closeSheet">✕</button>
+      </div>
+      <div class="sheet-body">
+        <h2 id="sheetName"></h2>
+        <p id="sheetDesc"></p>
+        <div class="sheet-price" id="sheetPrice"></div>
+        <button class="callbtn" id="addCartBtn" data-i="addcart" style="margin-bottom:8px;">Adicionar à sacola</button>
+        <button class="callbtn ghost" id="callBtnSheet" data-i="call">Chamar garçom</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Garçom chamado para a Mesa 03</div>
+
+  <div class="sheet-wrap" id="closedWrap" style="z-index:90;">
+    <div class="sheet" style="text-align:center;padding:36px 24px calc(30px + env(safe-area-inset-bottom,0px));">
+      <div style="font-size:40px;margin-bottom:12px;">🙏</div>
+      <h2 data-i="thanks" style="margin:0 0 8px;">Obrigado pela preferência!</h2>
+      <p data-i="closed_sub" style="color:var(--muted);font-size:14px;line-height:1.5;">Sua conta foi fechada. Esperamos ver você de novo em breve.</p>
+      <div id="closedLinks" style="display:flex;flex-direction:column;gap:10px;margin:18px 0;"></div>
+      <p data-i="closed_hint" style="color:var(--muted);font-size:12px;">Pra acessar o cardápio outra vez, escaneie o QR Code da mesa.</p>
+    </div>
+  </div>
+
+  <div class="sheet-wrap" id="qtyWrap" style="z-index:90;">
+    <div class="sheet">
+      <div class="sheet-body" style="padding-top:22px;text-align:center;">
+        <h2 id="qtyTitle" style="margin-bottom:14px;"></h2>
+        <div style="display:flex;align-items:center;justify-content:center;gap:22px;margin:6px 0 4px;">
+          <button class="callbtn ghost" id="qtyMinus" aria-label="-" style="width:56px;font-size:26px;line-height:1;padding:10px 0;">−</button>
+          <span id="qtyNum" style="font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:700;min-width:56px;">1</span>
+          <button class="callbtn ghost" id="qtyPlus" aria-label="+" style="width:56px;font-size:26px;line-height:1;padding:10px 0;">+</button>
+        </div>
+        <p id="qtyMax" data-i="qty_max" style="color:var(--muted);font-size:12px;margin:6px 0 16px;">Máximo: 15</p>
+        <button class="callbtn" id="qtySend" data-i="send">Enviar pedido</button>
+        <button class="callbtn ghost" id="qtyCancel" data-i="cancel" style="margin-top:8px;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-wrap" id="optWrap" style="z-index:95;">
+    <div class="sheet" style="max-height:94vh;">
+      <div class="sheet-body" style="padding-top:20px;">
+        <h2 id="optTitle"></h2>
+        <p id="optSub" style="margin-bottom:12px;"></p>
+        <div id="optBody"></div>
+        <label for="optNote" style="font-size:13px;font-weight:700;display:block;margin:6px 0;" data-i="opt_obs">Observação</label>
+        <textarea id="optNote" maxlength="300" rows="2" data-ip="opt_obs_ph" placeholder="Ex.: sem cebola" style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;padding:10px;font:inherit;font-size:14px;background:var(--card);color:var(--ink);resize:none;"></textarea>
+        <div style="display:flex;align-items:center;gap:12px;margin:14px 0 4px;">
+          <div class="optq"><button id="optQMinus" aria-label="-">−</button><span id="optQNum">1</span><button id="optQPlus" aria-label="+">+</button></div>
+          <button class="callbtn" id="optAdd" style="flex:1;">Adicionar</button>
+        </div>
+        <button class="callbtn ghost" id="optCancel" data-i="cancel" style="margin-top:8px;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-wrap" id="cartWrap">
+    <div class="sheet">
+      <div class="sheet-body" style="padding-top:20px;">
+        <h2 data-i="cart_title">Sua sacola</h2>
+        <div id="cartList"></div>
+        <button class="callbtn" id="orderBtn" data-i="order" style="margin-top:14px;">Pedir</button>
+        <button class="callbtn ghost" id="closeCart" data-i="close" style="margin-top:8px;">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-wrap" id="billWrap">
+    <div class="sheet">
+      <div class="sheet-body" style="padding-top:20px;">
+        <h2><span data-i="bill_title">Conta da Mesa</span> <span id="billMesaLabel"></span></h2>
+        <p data-i="bill_sub" style="margin:-8px 0 12px;color:var(--muted);font-size:13px;">Confira o que você pediu antes de chamar o garçom.</p>
+        <div id="billList"></div>
+        <div id="billTotal" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px;margin:12px 0;"></div>
+        <button class="callbtn" id="closeBillBtn" data-i="bill_call">Chamar garçom para fechar conta</button>
+        <button class="callbtn ghost" id="closeBillWrap" data-i="back" style="margin-top:8px;">Voltar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAINEL ===== -->
+<div class="app wide" id="painel">
+  <div class="pheader">
+    <h1>Painel — Casa Verde</h1>
+    <p>Acompanhe chamados de mesa e gerencie os QR codes.</p>
+  </div>
+  <div class="ptabs">
+    <button class="ptab active" data-pv="chamados">Chamados</button>
+    <button class="ptab" data-pv="resumo">Resumo</button>
+    <button class="ptab" data-pv="cardapio">Cardápio</button>
+    <button class="ptab" data-pv="mesas">Mesas &amp; QR Code</button>
+    <button class="ptab" data-pv="equipe">Equipe</button>
+  </div>
+
+  <div class="pview on" id="pv-chamados"></div>
+  <div class="pview" id="pv-resumo"></div>
+  <div class="pview" id="pv-cardapio">
+    <div class="catmgr" id="catmgr"></div>
+    <div class="prodhead"><h3>Produtos</h3><button class="stbtn new" id="addProd">+ Novo produto</button></div>
+    <div id="prodlist"></div>
+  </div>
+  <div class="pview" id="pv-mesas">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="stbtn new" id="printQR">🖨️ Imprimir todos os QR Codes</button></div>
+    <div class="qgrid" id="qgrid"></div>
+  </div>
+  <div class="pview" id="pv-equipe">
+    <div id="teamList"></div>
+    <h3 style="font-size:15px;margin:20px 0 10px;">Adicionar à equipe</h3>
+    <p style="color:var(--muted);font-size:12.5px;margin:-4px 0 10px;">A pessoa precisa já ter criado uma conta (email/senha) em qualquer área de login antes de você conseguir adicioná-la.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+      <label style="font-size:12.5px;color:var(--muted);">Email<br><input id="team-email" type="email" style="margin-top:4px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--card);color:var(--ink);font-family:inherit;"></label>
+      <label style="font-size:12.5px;color:var(--muted);">Função<br>
+        <select id="team-role" style="margin-top:4px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--card);color:var(--ink);font-family:inherit;">
+          <option value="waiter">Garçom</option>
+          <option value="kitchen">Cozinha</option>
+          <option value="manager">Gerente</option>
+          <option value="owner">Dono</option>
+        </select>
+      </label>
+      <button class="stbtn new" id="team-add">+ Adicionar</button>
+    </div>
+    <p id="team-msg" style="color:var(--ember);font-size:12.5px;margin-top:8px;"></p>
+  </div>
+
+  <div class="modal-wrap" id="prodModalWrap">
+    <div class="modal">
+      <h3 id="modalTitle">Novo produto</h3>
+      <label>Nome<input id="f-name" type="text"></label>
+      <label>Categoria
+        <select id="f-cat"></select>
+      </label>
+      <label>Preço (R$)<input id="f-price" type="number" step="0.5"></label>
+      <label>Descrição<textarea id="f-desc" rows="2"></textarea></label>
+      <label>Foto do prato<br><input id="f-photo" type="file" accept="image/*" style="margin-top:5px;"></label>
+      <label>Vídeo do prato (opcional)<br><input id="f-videofile" type="file" accept="video/*" style="margin-top:5px;"></label>
+      <p id="f-upload-msg" style="color:var(--muted);font-size:11.5px;margin:-8px 0 12px;"></p>
+      <label class="chk"><input id="f-out" type="checkbox"> Indisponível no momento</label>
+      <div class="modal-actions">
+        <button class="stbtn done" id="cancelProd">Cancelar</button>
+        <button class="stbtn new" id="saveProd">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="roleview" id="garcom">
+  <div class="rhead"><h1>Área do Garçom</h1><p>Vê só os chamados e pedidos das mesas — sem acesso a produtos, preços ou configurações.</p></div>
+  <h3 style="font-size:15px;margin:0 0 8px;">Pedidos</h3>
+  <div id="gorders"></div>
+  <h3 style="font-size:15px;margin:18px 0 8px;">Chamados</h3>
+  <div id="gchamados"></div>
+</div>
+
+<div class="roleview" id="cozinha">
+  <div class="rhead"><h1>Área da Cozinha</h1><p>Recebe os pedidos assim que o cliente confirma na sacola — leitura, sem ações (o garçom marca como entregue).</p></div>
+  <div id="kOrders"></div>
+</div>
+
+<div class="roleview" id="dono">
+  <div class="rhead"><h1>Painel — Dono</h1><p>Visão geral do restaurante. Acesso completo, igual ao Gerente.</p></div>
+  <div class="statgrid" id="donoStats"></div>
+  <div id="donoInsights" style="margin-top:22px;"></div>
+  <button class="gotobtn" id="donoGoGerente">Gerenciar cardápio, mesas e chamados →</button>
+</div>
+
+<div class="roleview" id="superadmin">
+  <div class="rhead" style="padding-top:0;"><h1>Super Admin — Plataforma</h1><p>Visão de todos os restaurantes cadastrados na plataforma (não é a área de um restaurante específico).</p></div>
+  <div class="statgrid" id="saStats"></div>
+  <table class="satable">
+    <tr><th>Restaurante</th><th>Slug</th><th>Chamados hoje</th><th>Status</th></tr>
+    <tbody id="saTable"></tbody>
+  </table>
+  <h3 style="font-size:15px;margin:24px 0 10px;">Criar novo restaurante</h3>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+    <label style="font-size:12.5px;color:var(--muted);">Nome<br><input id="sa-name" type="text" style="margin-top:4px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--card);color:var(--ink);font-family:inherit;"></label>
+    <label style="font-size:12.5px;color:var(--muted);">Slug (vai na URL)<br><input id="sa-slug" type="text" placeholder="ex: brasa-burger" style="margin-top:4px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--card);color:var(--ink);font-family:inherit;"></label>
+    <button class="stbtn new" id="sa-create">+ Criar</button>
+  </div>
+  <p id="sa-msg" style="color:var(--ember);font-size:12.5px;margin-top:8px;"></p>
+</div>
+
+  <button id="accountBtn" style="display:none;position:fixed;left:10px;bottom:10px;z-index:50;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:8px 14px;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.12);">👤 Conta</button>
+
+  <div class="modal-wrap" id="accountWrap">
+    <div class="modal">
+      <h3>Minha conta</h3>
+      <p id="accEmail" style="font-size:13px;color:var(--muted);margin:-6px 0 16px;"></p>
+      <div class="modal-actions" style="flex-direction:column;gap:8px;">
+        <button class="stbtn done" id="accLogout" style="width:100%;">Sair</button>
+        <button class="stbtn" id="accDelete" style="width:100%;background:rgba(193,68,30,.12);color:var(--ember);">Excluir conta (remover meu acesso)</button>
+        <button class="stbtn done" id="accCancel" style="width:100%;">Cancelar</button>
+      </div>
+      <p id="accMsg" style="color:var(--ember);font-size:12px;margin-top:10px;"></p>
+    </div>
+  </div>
+
+  <div class="modal-wrap" id="authWrap">
+    <div class="modal">
+      <h3 id="authTitle">Entrar</h3>
+      <label>Email<input id="auth-email" type="email"></label>
+      <label>Senha<input id="auth-pass" type="password"></label>
+      <div class="modal-actions">
+        <button class="stbtn done" id="authToggle">Criar conta</button>
+        <button class="stbtn new" id="authSubmit">Entrar</button>
+      </div>
+      <p id="authMsg" style="color:var(--ember);font-size:12.5px;margin-top:10px;"></p>
+    </div>
+  </div>
+
+<script>
+const SB_ON_EARLY = true;
+const I18N = {
+ pt:{q_label:'Precisa de algo?',talher:'🍴 Talheres',guardanapo:'🧻 Guardanapos',agua:'💧 Água',gelo:'🧊 Gelo',search:'Buscar prato...',call:'Chamar garçom',bill:'Fechar conta',addcart:'Adicionar à sacola',cart_title:'Sua sacola',order:'Pedir',close:'Fechar',bill_title:'Conta da Mesa',bill_sub:'Confira o que você pediu antes de chamar o garçom.',bill_call:'Chamar garçom para fechar conta',back:'Voltar',thanks:'Obrigado pela preferência!',closed_sub:'Sua conta foi fechada. Esperamos ver você de novo em breve.',closed_hint:'Pra acessar o cardápio outra vez, escaneie o QR Code da mesa.',all:'Todos',out:'Indisponível',promo:'Promoção',out_now:'Indisponível no momento',bag_empty:'Sua sacola está vazia.',none:'Nenhum prato encontrado.',toast_order:'Pedido enviado — Mesa',toast_call:'Garçom chamado para a Mesa',toast_bill:'Garçom chamado para fechar a Mesa',browse_only:'👀 Você está só vendo o cardápio. Para chamar o garçom ou fazer pedidos, escaneie o QR Code da sua mesa.',browse_pill:'👀 Só o cardápio',video:'🎬 Vídeo do prato',video_soon:'🎬 Vídeo em breve',per_kg:'Preço por kg',send:'Enviar pedido',cancel:'Cancelar',qty_max:'Máximo: 15',qty_talher:'Quantos talheres?',qty_guardanapo:'Quantos guardanapos?',qty_agua:'Quantas águas?',qty_gelo:'Quanto gelo? (copos)',w_talher:'talheres 🍴',w_guardanapo:'guardanapos 🧻',w_agua:'água 💧',w_gelo:'gelo 🧊',opt_obs:'Observação',opt_obs_ph:'Ex.: sem cebola',opt_req:'Obrigatório',opt_opt:'Opcional',opt_choose:'Escolher opções',opt_add:'Adicionar',opt_from:'A partir de',opt_pick:'Escolha',opt_upto:'até',opt_atleast:'no mínimo',opt_free:'incluso'},
+ en:{q_label:'Need something?',talher:'🍴 Cutlery',guardanapo:'🧻 Napkins',agua:'💧 Water',gelo:'🧊 Ice',search:'Search dish...',call:'Call waiter',bill:'Close bill',addcart:'Add to bag',cart_title:'Your bag',order:'Order',close:'Close',bill_title:'Bill for Table',bill_sub:'Check what you ordered before calling the waiter.',bill_call:'Call waiter to close the bill',back:'Back',thanks:'Thank you for visiting!',closed_sub:'Your bill was closed. We hope to see you again soon.',closed_hint:'To open the menu again, scan the QR Code on your table.',all:'All',out:'Unavailable',promo:'Offer',out_now:'Unavailable right now',bag_empty:'Your bag is empty.',none:'No dishes found.',toast_order:'Order sent — Table',toast_call:'Waiter called to Table',toast_bill:'Waiter called to close Table',browse_only:'👀 You are just browsing the menu. To call the waiter or order, scan the QR Code on your table.',browse_pill:'👀 Menu only',video:'🎬 Dish video',video_soon:'🎬 Video coming soon',per_kg:'Price per kg',send:'Send request',cancel:'Cancel',qty_max:'Maximum: 15',qty_talher:'How many cutlery sets?',qty_guardanapo:'How many napkins?',qty_agua:'How many waters?',qty_gelo:'How much ice? (cups)',w_talher:'cutlery 🍴',w_guardanapo:'napkins 🧻',w_agua:'water 💧',w_gelo:'ice 🧊',opt_obs:'Notes',opt_obs_ph:'E.g.: no onions',opt_req:'Required',opt_opt:'Optional',opt_choose:'Choose options',opt_add:'Add',opt_from:'From',opt_pick:'Choose',opt_upto:'up to',opt_atleast:'at least',opt_free:'included'},
+ es:{q_label:'¿Necesita algo?',talher:'🍴 Cubiertos',guardanapo:'🧻 Servilletas',agua:'💧 Agua',gelo:'🧊 Hielo',search:'Buscar plato...',call:'Llamar al mesero',bill:'Cerrar cuenta',addcart:'Añadir a la bolsa',cart_title:'Su bolsa',order:'Pedir',close:'Cerrar',bill_title:'Cuenta de la Mesa',bill_sub:'Revise lo que pidió antes de llamar al mesero.',bill_call:'Llamar al mesero para cerrar la cuenta',back:'Volver',thanks:'¡Gracias por su visita!',closed_sub:'Su cuenta fue cerrada. Esperamos verle pronto.',closed_hint:'Para abrir el menú otra vez, escanee el código QR de su mesa.',all:'Todos',out:'No disponible',promo:'Oferta',out_now:'No disponible por ahora',bag_empty:'Su bolsa está vacía.',none:'No se encontraron platos.',toast_order:'Pedido enviado — Mesa',toast_call:'Mesero llamado a la Mesa',toast_bill:'Mesero llamado para cerrar la Mesa',browse_only:'👀 Solo está viendo el menú. Para llamar al mesero o pedir, escanee el código QR de su mesa.',browse_pill:'👀 Solo el menú',video:'🎬 Video del plato',video_soon:'🎬 Video próximamente',per_kg:'Precio por kg',send:'Enviar pedido',cancel:'Cancelar',qty_max:'Máximo: 15',qty_talher:'¿Cuántos cubiertos?',qty_guardanapo:'¿Cuántas servilletas?',qty_agua:'¿Cuántas aguas?',qty_gelo:'¿Cuánto hielo? (vasos)',w_talher:'cubiertos 🍴',w_guardanapo:'servilletas 🧻',w_agua:'agua 💧',w_gelo:'hielo 🧊',opt_obs:'Observación',opt_obs_ph:'Ej.: sin cebolla',opt_req:'Obligatorio',opt_opt:'Opcional',opt_choose:'Elegir opciones',opt_add:'Añadir',opt_from:'Desde',opt_pick:'Elija',opt_upto:'hasta',opt_atleast:'mínimo',opt_free:'incluido'}
+};
+let LANG = 'pt';
+try{
+  const saved = localStorage.getItem('lang');
+  const nav = (navigator.language||'pt').slice(0,2).toLowerCase();
+  LANG = I18N[saved] ? saved : (I18N[nav] ? nav : 'pt');
+}catch(e){}
+function tr(k){ return (I18N[LANG] && I18N[LANG][k]) || I18N.pt[k] || k; }
+function applyLang(){
+  document.documentElement.lang = LANG==='pt' ? 'pt-BR' : LANG;
+  document.querySelectorAll('[data-i]').forEach(el=>{ el.textContent = tr(el.dataset.i); });
+  document.querySelectorAll('[data-ip]').forEach(el=>{ el.placeholder = tr(el.dataset.ip); });
+  document.querySelectorAll('#langSw button').forEach(b=>b.classList.toggle('on', b.dataset.l===LANG));
+}
+
+const IMG_RICOTA = null;
+const IMG_TARTARE = null;
+const IMG_BURRATA = null;
+
+let items = SB_ON_EARLY ? [] : [
+  {id:1,cat:'Entradas',name:'Ricota Batida & Mel',desc:'Ricota fresca, mel de flor de laranjeira, nozes e crostini.',price:'R$ 32,00',img:IMG_RICOTA,video:true,vid:'videos/ricota.mp4',promo:false,out:false,tags:['Vegetariano','Compartilhar']},
+  {id:2,cat:'Entradas',name:'Tartare de Atum',desc:'Atum vermelho, yuzu, abacate e chips de arroz.',price:'R$ 48,00',img:IMG_TARTARE,video:true,vid:null,promo:false,out:false,tags:['Cru','Sem glúten']},
+  {id:3,cat:'Entradas',name:'Burrata & Tomate',desc:'Burrata cremosa, tomate confitado e pesto de manjericão.',price:'R$ 44,00',img:IMG_BURRATA,video:true,vid:'videos/burrata.mp4',promo:true,out:false,tags:['Vegetariano','Compartilhar']},
+  {id:4,cat:'Pratos',name:'Peixe do Dia na Brasa',desc:'Pesca do dia, mousseline de mandioquinha e azeite de ervas.',price:'R$ 89,00',img:null,video:false,promo:false,out:false,tags:['Sem glúten']},
+  {id:5,cat:'Pratos',name:'Cordeiro Braseado',desc:'Paleta braseada por 8 horas, purê de grão-de-bico e hortelã.',price:'R$ 96,00',img:null,video:false,promo:false,out:false,tags:['Assinatura']},
+  {id:6,cat:'Vinhos',name:'Branco de Vinhedo Alto',desc:'Uva de altitude, mineral e cítrico. Taça 150ml.',price:'R$ 39,00',img:null,video:false,promo:false,out:true,tags:['Taça']},
+];
+let categorias = ['Entradas','Pratos','Sobremesas','Vinhos'];
+function cats(){ return ['Todos', ...categorias]; }
+document.addEventListener('click', e=>{ const b=e.target.closest('#langSw button'); if(!b) return; LANG=b.dataset.l; try{ localStorage.setItem('lang',LANG); }catch(_){} applyLang(); renderCats(); renderGrid(); try{ renderCart(); }catch(_){} });
+const dispPrice = p => p==='Preço por kg' ? tr('per_kg') : (/^A partir de /.test(p) ? tr('opt_from')+' '+p.slice(11) : p);
+const fmtBRL = n => 'R$ '+Number(n).toFixed(2).replace('.',',');
+function minGroupsPrice(gs,base){
+  return (Number(base)||0) + gs.reduce((sum,g)=>{
+    const prices = (g.options||[]).map(o=>Number(o.price)||0).sort((a,b)=>a-b);
+    const need = Math.max(0, Number(g.min)||0);
+    return sum + prices.slice(0,need).reduce((a,b)=>a+b,0) + (need>prices.length ? 0 : 0);
+  },0);
+}
+function cleanGroups(raw){
+  if(!Array.isArray(raw)) return null;
+  const gs = raw.filter(g=>g && Array.isArray(g.options) && g.options.length).map(g=>({
+    name:String(g.name||g.label||''), label:String(g.label||g.name||''),
+    min:Math.max(0,Math.min(20,Number(g.min)||0)), max:Math.max(1,Math.min(20,Number(g.max)||1)),
+    type: g.type==='qty' ? 'qty' : 'radio',
+    options:g.options.map(o=>({name:String(o.name||''), price:Math.max(0,Number(o.price)||0)})).filter(o=>o.name)
+  })).filter(g=>g.options.length);
+  return gs.length ? gs : null;
+}
+function optsHtml(i){
+  const o = Array.isArray(i.opts) ? i.opts : [];
+  const by = {}; o.forEach(x=>{ if(!x) return; const g = String(x.g||''); (by[g]=by[g]||[]).push((Number(x.q)>1 ? x.q+'x ' : '')+String(x.n||'')); });
+  let h = Object.keys(by).map(g=>`<div class="oline">${g?esc(g)+': ':''}${esc(by[g].join(', '))}</div>`).join('');
+  if(i.note) h += `<div class="oline">Obs: ${esc(i.note)}</div>`;
+  return h;
+}
+const catLabel = c => c==='Todos' ? tr('all') : esc(c);
+let activeCat = 'Todos';
+let mesas = [];
+let mesaRowId = {};
+async function loadMesas(){
+  if(!(SB_ON && myRestaurant)) return;
+  try{
+    const rows = await sbGet(`tables?restaurant_id=eq.${myRestaurant.id}&select=*&order=number.asc`, true);
+    mesas = rows.map(r=>r.number);
+    mesaRowId = {}; rows.forEach(r=>mesaRowId[r.number]=r.id);
+  }catch(e){ console.error('loadMesas', e); }
+}
+let currentMesa = (new URLSearchParams(location.search).get('mesa')||'03').replace(/[^0-9A-Za-z]/g,'').slice(0,6).padStart(2,'0');
+
+const $ = s => document.querySelector(s);
+
+function renderCats(){
+  $('#cats').innerHTML = cats().map(c=>`<button class="cat ${c===activeCat?'active':''}" data-c="${esc(c)}">${catLabel(c)}</button>`).join('');
+  $('#cats').querySelectorAll('.cat').forEach(b=>b.onclick=()=>{activeCat=b.dataset.c;renderCats();renderGrid();});
+}
+function thumbUrl(u){
+  if(!u) return u;
+  const m = /^(\/celsinho-imagens\/)([^\/?#]+)$/.exec(u);
+  return m ? '/celsinho-thumbs/'+m[2] : u;
+}
+function thumbStyle(i){
+  return i.img ? `background-image:url('${i.img}');background-size:cover;background-position:center;` : '';
+}
+function renderGrid(){
+  const q = ($('#search')?.value||'').toLowerCase();
+  const list = items.filter(i=>(activeCat==='Todos'||i.cat===activeCat)&&i.name.toLowerCase().includes(q));
+  $('#grid').innerHTML = list.map(i=>`
+    <button class="item" data-id="${i.id}">
+      <div class="thumb ${i.img?'':'off'}">${i.img?`<img class="kbimg" src="${esc(thumbUrl(i.img))}" data-o="${esc(i.img)}" onerror="this.onerror=null;this.src=this.dataset.o" loading="lazy" decoding="async" alt="">`:''}${i.video?'<div class="play">▶</div>':''}</div>
+      <div class="itxt">
+        <h3>${esc(i.name)}</h3>
+        <p>${esc(i.desc)}</p>
+        <div class="tagrow">${i.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+        <div class="irow">
+          <span class="price">${dispPrice(i.price)}</span>
+          ${i.out?`<span class="badge out">${tr('out')}</span>`:(i.promo?`<span class="badge promo">${tr('promo')}</span>`:'')}
+        </div>
+      </div>
+    </button>`).join('') || `<p style="color:var(--muted);font-size:14px;padding:20px 0;">${tr('none')}</p>`;
+  $('#grid').querySelectorAll('.item').forEach(b=>b.onclick=()=>openSheet(+b.dataset.id));
+}
+document.addEventListener('input', e=>{ if(e.target.id==='search') renderGrid(); });
+let cart = [];
+let orders = [];
+let openItemId = null;
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function friendlyError(e){
+  const msg = (e && e.message) || '';
+  if(e instanceof TypeError || /failed to fetch|networkerror|load failed/i.test(msg)){
+    return 'Sem conexão com a internet agora. Verifique o sinal e tente de novo.';
+  }
+  if(/não existe neste restaurante/i.test(msg)) return 'Essa mesa não foi reconhecida. Escaneie o QR Code de novo.';
+  if(/Quantidade inválida/i.test(msg)) return 'Escolha uma quantidade de 1 a 15.';
+  if(/Chamado já enviado/i.test(msg)) return 'Já avisamos o garçom desse pedido. É só aguardar um instante. 😉';
+  if(/Muitos pedidos/i.test(msg)) return 'Você enviou muitos pedidos em pouco tempo. Aguarde um minuto e tente de novo.';
+  return 'Algo deu errado. Tente de novo em instantes.';
+}
+function cartCount(){ return cart.reduce((s,c)=>s+c.qty,0); }
+function updateCartBadge(){
+  const n = cartCount();
+  const b = $('#cartBadge');
+  b.textContent = n; b.style.display = n>0 ? 'flex' : 'none';
+}
+function addToCart(id){
+  const i = items.find(x=>x.id===id);
+  if(!i){ console.error('addToCart: item não encontrado', id); return; }
+  const line = cart.find(c=>c.id===id);
+  if(line) line.qty++; else cart.push({id:i.id, name:i.name, price:i.price, qty:1});
+  updateCartBadge();
+  const b = $('#cartBadge'); b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
+  const btn = document.getElementById('addCartBtn');
+  if(btn){
+    const original = btn.textContent;
+    btn.textContent = '✓ Adicionado à sacola';
+    btn.disabled = true;
+    setTimeout(()=>{ btn.textContent = original; btn.disabled = !!i.out; }, 1100);
+  }
+  $('#toast').textContent = `${i.name} adicionado à sacola`;
+  $('#toast').classList.add('on');
+  setTimeout(()=>$('#toast').classList.remove('on'), 2000);
+}
+document.addEventListener('click', e=>{
+  if(e.target && e.target.id==='addCartBtn' && !e.target.disabled && openItemId!=null){
+    const it = items.find(x=>x.id===openItemId);
+    if(it && it.groups) openOptions(it); else addToCart(openItemId);
+  }
+});
+/* ---- opções do prato (ex.: Monte seu marmitex) ---- */
+let optItem = null, optSel = [], optQty = 1;
+function optGroupCount(gi){ return Object.values(optSel[gi]||{}).reduce((a,b)=>a+b,0); }
+function optUnit(){
+  let t = optItem.base||0; optItem.groups.forEach((g,gi)=>g.options.forEach((o,oi)=>{ t += o.price*((optSel[gi]||{})[oi]||0); })); return t;
+}
+function optValid(){ return optItem.groups.every((g,gi)=>{ const n=optGroupCount(gi); return n>=g.min && n<=g.max; }); }
+function openOptions(it){
+  optItem = it; optQty = 1; optSel = it.groups.map(()=>({}));
+  $('#optTitle').textContent = it.name; $('#optSub').textContent = it.desc; $('#optNote').value = '';
+  renderOptions(); $('#sheetWrap').classList.remove('on'); $('#optWrap').classList.add('on');
+  $('#optWrap .sheet').scrollTop = 0;
+}
+function renderOptions(){
+  const it = optItem;
+  $('#optBody').innerHTML = it.groups.map((g,gi)=>{
+    const n = optGroupCount(gi), okG = n>=g.min && n<=g.max;
+    const rule = g.max===1 ? (g.min>0?tr('opt_pick')+' 1':tr('opt_upto')+' 1') : (g.min>0 ? `${tr('opt_atleast')} ${g.min}, ${tr('opt_upto')} ${g.max}` : `${tr('opt_upto')} ${g.max}`);
+    const rows = g.options.map((o,oi)=>{
+      const q = (optSel[gi]||{})[oi]||0;
+      const pr = o.price>0 ? '+ '+fmtBRL(o.price) : '';
+      if(g.type==='radio') return `<label class="opt"><span>${esc(o.name)}${pr?` <span class="op">${esc(pr)}</span>`:''}</span><input type="radio" name="og${gi}" data-g="${gi}" data-o="${oi}" ${q?'checked':''}></label>`;
+      return `<div class="opt" style="cursor:default;"><span>${esc(o.name)}${pr?` <span class="op">${esc(pr)}</span>`:''}</span><div class="optq"><button data-g="${gi}" data-o="${oi}" data-d="-1" ${q<=0?'disabled':''}>−</button><span>${q}</span><button data-g="${gi}" data-o="${oi}" data-d="1" ${n>=g.max?'disabled':''}>+</button></div></div>`;
+    }).join('');
+    return `<div class="optg ${okG?'':'bad'}" data-gi="${gi}"><div class="optgh"><div><b>${esc(g.name)}</b><small>${esc(rule)}${g.max>1?` · ${n}/${g.max}`:''}</small></div><span class="optreq ${okG?'ok':''}">${g.min>0?(okG?'✓':tr('opt_req')):tr('opt_opt')}</span></div>${rows}</div>`;
+  }).join('');
+  const ok = optValid();
+  $('#optQNum').textContent = optQty; $('#optQMinus').disabled = optQty<=1; $('#optQPlus').disabled = optQty>=15;
+  $('#optAdd').textContent = tr('opt_add')+' · '+fmtBRL(optUnit()*optQty);
+  $('#optAdd').style.opacity = ok ? '1' : '.55';
+  document.querySelectorAll('#optBody .optg').forEach(el=>{ if(!optValid()) el.classList.toggle('bad', !(optGroupCount(+el.dataset.gi)>=optItem.groups[+el.dataset.gi].min)); });
+}
+$('#optBody').addEventListener('click', e=>{
+  const r = e.target.closest('input[type=radio]');
+  if(r){ const gi=+r.dataset.g, oi=+r.dataset.o; optSel[gi] = {[oi]:1}; renderOptions(); return; }
+  const b = e.target.closest('button[data-d]');
+  if(b){ const gi=+b.dataset.g, oi=+b.dataset.o, d=+b.dataset.d, g=optItem.groups[gi];
+    const cur = (optSel[gi]||{})[oi]||0;
+    if(d>0 && optGroupCount(gi)>=g.max) return;
+    const nv = Math.max(0,cur+d); if(nv) optSel[gi][oi]=nv; else delete optSel[gi][oi];
+    renderOptions(); }
+});
+$('#optQMinus').onclick = ()=>{ if(optQty>1){ optQty--; renderOptions(); } };
+$('#optQPlus').onclick = ()=>{ if(optQty<15){ optQty++; renderOptions(); } };
+$('#optCancel').onclick = ()=> $('#optWrap').classList.remove('on');
+$('#optWrap').addEventListener('click', e=>{ if(e.target.id==='optWrap') $('#optWrap').classList.remove('on'); });
+$('#optAdd').onclick = ()=>{
+  if(!optValid()){
+    const bad = optItem.groups.findIndex((g,gi)=>optGroupCount(gi)<g.min);
+    document.querySelectorAll('#optBody .optg').forEach(el=>el.classList.toggle('bad', optGroupCount(+el.dataset.gi)<optItem.groups[+el.dataset.gi].min));
+    const el = document.querySelector(`#optBody .optg[data-gi="${bad}"]`); if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  const opts = []; optItem.groups.forEach((g,gi)=>g.options.forEach((o,oi)=>{ const q=(optSel[gi]||{})[oi]||0; if(q) opts.push({g:g.label||g.name, n:o.name, q, p:o.price}); }));
+  const note = ($('#optNote').value||'').trim().slice(0,300);
+  const key = optItem.id+'|'+JSON.stringify(opts)+'|'+note;
+  const line = cart.find(c=>c.key===key);
+  if(line) line.qty = Math.min(99,line.qty+optQty); else cart.push({key, id:optItem.id, name:optItem.name, price:fmtBRL(optUnit()), qty:optQty, opts, note});
+  $('#optWrap').classList.remove('on');
+  updateCartBadge();
+  const b = $('#cartBadge'); b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
+  $('#toast').textContent = `${optItem.name} adicionado à sacola`; $('#toast').classList.add('on'); setTimeout(()=>$('#toast').classList.remove('on'),2000);
+};
+function renderCart(){
+  $('#cartList').innerHTML = cart.length ? cart.map((c,i)=>`
+    <div class="cartrow">
+      <label style="display:flex;align-items:center;gap:9px;flex:1;cursor:pointer;">
+        <input type="checkbox" class="cart-check" data-idx="${i}" checked style="width:17px;height:17px;accent-color:var(--ember);flex:none;">
+        <span>${c.qty}x ${esc(c.name)}${optsHtml(c)}</span>
+      </label>
+      <span>${esc(dispPrice(c.price))}</span>
+    </div>`).join('')
+    : `<p style="color:var(--muted);font-size:14px;">${tr('bag_empty')}</p>`;
+  $('#orderBtn').disabled = cart.length===0;
+}
+$('#cartBtn').onclick = ()=>{ renderCart(); $('#cartWrap').classList.add('on'); };
+$('#closeCart').onclick = ()=> $('#cartWrap').classList.remove('on');
+$('#orderBtn').onclick = ()=>{
+  if(!cart.length) return;
+  const checks = Array.from(document.querySelectorAll('.cart-check'));
+  const marcados = cart.filter((c,i)=> checks[i] ? checks[i].checked : true);
+  if(!marcados.length){ alert('Marque pelo menos um item pra pedir.'); return; }
+  sendOrder(currentMesa, marcados.map(c=>{ const o={name:c.name,qty:c.qty,price:c.price}; if(c.opts&&c.opts.length) o.opts=c.opts; if(c.note) o.note=c.note; return o; }));
+  cart = cart.filter((c,i)=> checks[i] && !checks[i].checked); // desmarcados ficam guardados
+  updateCartBadge();
+  $('#cartWrap').classList.remove('on');
+  $('#toast').textContent = `${tr('toast_order')} ${currentMesa}`;
+  $('#toast').classList.add('on'); setTimeout(()=>$('#toast').classList.remove('on'),3000);
+  renderGOrders(); renderKOrders();
+};
+function renderGOrders(){
+  const el = $('#gorders'); if(!el) return;
+  const active = orders.filter(o=>o.status==='novo');
+  el.innerHTML = active.length ? active.map(o=>`
+    <div class="ordercard"><div class="omesa">Mesa ${esc(o.mesa)} · ${o.time}</div>
+    <ul>${o.items.map(i=>`<li>${esc(i.qty)}x ${esc(i.name)}${optsHtml(i)}</li>`).join('')}</ul>
+    <button class="stbtn new" data-oid="${o.id}">Marcar entregue</button></div>`).join('')
+    : '<p style="color:var(--muted);font-size:14px;">Nenhum pedido pendente.</p>';
+  el.querySelectorAll('[data-oid]').forEach(b=>b.onclick=()=>{
+    markOrder(b.dataset.oid);
+  });
+}
+function renderKOrders(){
+  const el = $('#kOrders'); if(!el) return;
+  const active = orders.filter(o=>o.status==='novo');
+  el.innerHTML = active.length ? active.map(o=>`
+    <div class="ordercard"><div class="omesa">Mesa ${esc(o.mesa)} · ${o.time}</div>
+    <ul>${o.items.map(i=>`<li>${esc(i.qty)}x ${esc(i.name)}${optsHtml(i)}</li>`).join('')}</ul></div>`).join('')
+    : '<p style="color:var(--muted);font-size:14px;">Nenhum pedido pendente.</p>';
+}
+
+function openSheet(id){
+  openItemId = id;
+  const i = items.find(x=>x.id===id);
+  if(SB_ON && clienteRestaurant){ sb('item_views','POST',{restaurant_id:clienteRestaurant.id, item_id:id}, true).catch(()=>{}); }
+  $('#sheetMedia').className = 'sheet-media' + (i.img?'':' off');
+  const mediaLayer = i.vid
+    ? `<video class="dishvid" autoplay muted loop playsinline src="${i.vid}"></video>`
+    : (i.img ? `<div class="kbimg ${i.video?'kb':''}" style="background-image:url('${i.img}')"></div>` : '');
+  $('#sheetMedia').innerHTML = mediaLayer + `<button class="close-x" id="closeSheet2">✕</button>` +
+    (i.video ? `<span class="vlabel">${i.vid?tr('video'):tr('video_soon')}</span>` : '');
+  $('#closeSheet2').onclick = closeSheet;
+  $('#sheetName').textContent = i.name;
+  $('#sheetDesc').textContent = i.desc;
+  $('#sheetPrice').textContent = dispPrice(i.price) + (i.out ? '  ·  '+tr('out_now') : '');
+  $('#callBtnSheet').disabled = false;
+  $('#callBtnSheet').textContent = tr('call');
+  $('#addCartBtn').disabled = !!i.out;
+  $('#addCartBtn').textContent = i.groups ? tr('opt_choose') : tr('addcart');
+  $('#sheetWrap').classList.add('on');
+}
+function closeSheet(){ $('#sheetWrap').classList.remove('on'); }
+$('#closeSheet').onclick = closeSheet;
+$('#sheetWrap').addEventListener('click', e=>{ if(e.target.id==='sheetWrap') closeSheet(); });
+
+function callWaiter(btn){
+  btn.disabled = true;
+  const original = btn.textContent;
+  btn.textContent = 'Chamando...';
+  $('#toast').textContent = `${tr('toast_call')} ${currentMesa}`;
+  setTimeout(()=>{
+    $('#toast').classList.add('on');
+    addMockCall(currentMesa);
+  }, 500);
+  setTimeout(()=> $('#toast').classList.remove('on'), 3000);
+  setTimeout(()=>{ btn.disabled=false; btn.textContent=original; }, 4000);
+}
+let qtyKind = null, qtyVal = 1;
+function renderQty(){ $('#qtyNum').textContent = qtyVal; $('#qtyMinus').disabled = qtyVal<=1; $('#qtyPlus').disabled = qtyVal>=15; }
+document.querySelectorAll('.qchip').forEach(b=>b.onclick=()=>{
+  qtyKind = b.dataset.k; qtyVal = 1;
+  $('#qtyTitle').textContent = tr('qty_'+qtyKind);
+  renderQty(); $('#qtyWrap').classList.add('on');
+});
+$('#qtyMinus').onclick = ()=>{ if(qtyVal>1){ qtyVal--; renderQty(); } };
+$('#qtyPlus').onclick = ()=>{ if(qtyVal<15){ qtyVal++; renderQty(); } };
+$('#qtyCancel').onclick = ()=> $('#qtyWrap').classList.remove('on');
+$('#qtySend').onclick = async ()=>{
+  const btn = $('#qtySend'); btn.disabled = true;
+  const k = qtyKind, q = qtyVal;
+  const ok = await addMockCall(currentMesa, k, [{name:k, qty:q}]);
+  btn.disabled = false; $('#qtyWrap').classList.remove('on');
+  if(ok!==false){
+    $('#toast').textContent = `${tr('toast_order')} ${currentMesa}`;
+    $('#toast').classList.add('on'); setTimeout(()=>$('#toast').classList.remove('on'),2500);
+    const chip = document.querySelector(`.qchip[data-k=${k}]`); if(chip){ chip.disabled = true; setTimeout(()=>{ chip.disabled=false; }, 8000); }
+  }
+};
+$('#callBtnFooter').onclick = ()=>callWaiter($('#callBtnFooter'));
+function priceToNumber(p){ return parseFloat(String(p).replace('R$','').replace('.','').replace(',','.').trim())||0; }
+async function openBill(){
+  $('#billWrap').classList.add('on');
+  $('#billMesaLabel').textContent = currentMesa;
+  $('#billList').innerHTML = '<p style="color:var(--muted);font-size:14px;">Calculando sua conta...</p>';
+  $('#billTotal').textContent = '';
+  $('#closeBillBtn').disabled = true;
+  let mesaOrders = [];
+  try{
+    if(SB_ON && clienteRestaurant) {
+      const rr = await fetch(SB_URL+'/rest/v1/rpc/bill_items', {method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+SB_KEY, 'Content-Type':'application/json'}, body: JSON.stringify({p_restaurant:clienteRestaurant.id, p_mesa:currentMesa})});
+      if(!rr.ok) throw new Error(await rr.text());
+      mesaOrders = [{items: await rr.json()}];
+    }
+  }catch(e){ console.error('openBill', e); }
+  const lines = {};
+  mesaOrders.forEach(o=>(o.items||[]).forEach(i=>{
+    const key = String(i.name)+'|'+JSON.stringify(i.opts||[])+'|'+(i.note||'');
+    if(!lines[key]) lines[key] = {name:i.name, qty:0, price:i.price, opts:i.opts, note:i.note};
+    lines[key].qty += i.qty;
+  }));
+  const arr = Object.values(lines);
+  const total = arr.reduce((s,i)=>s+priceToNumber(i.price)*i.qty, 0);
+  $('#billList').innerHTML = arr.length ? arr.map(i=>`
+    <div class="cartrow"><span>${esc(i.qty)}x ${esc(i.name)}${optsHtml(i)}</span><span>${esc(dispPrice(i.price))}</span></div>`).join('')
+    : '<p style="color:var(--muted);font-size:14px;">Nenhum pedido feito pela sacola ainda nesta mesa.</p>';
+  $('#billTotal').textContent = 'Total: R$ ' + total.toFixed(2).replace('.',',');
+  $('#closeBillBtn').disabled = false;
+  window.__billSnapshot = {items: arr.map(i=>{ const o={name:i.name, qty:i.qty, price:i.price}; if(i.opts&&i.opts.length) o.opts=i.opts; if(i.note) o.note=i.note; return o; }), total};
+}
+$('#billBtnFooter').onclick = openBill;
+$('#closeBillWrap').onclick = ()=> $('#billWrap').classList.remove('on');
+$('#closeBillBtn').onclick = async ()=>{
+  const btn = $('#closeBillBtn'); btn.disabled = true; const t = btn.textContent; btn.textContent='Chamando...';
+  const snap = window.__billSnapshot || {items:[], total:0};
+  if(SB_ON && clienteRestaurant){
+    try{ await sb('calls','POST',{mesa:currentMesa, kind:'conta', restaurant_id:clienteRestaurant.id, items:snap.items, total:snap.total}, true); syncAll(); }
+    catch(e){ console.error(e); alert(friendlyError(e)); btn.disabled=false; btn.textContent=t; return; }
+  }
+  $('#billWrap').classList.remove('on');
+  $('#toast').textContent = `${tr('toast_bill')} ${currentMesa}`;
+  $('#toast').classList.add('on'); setTimeout(()=>$('#toast').classList.remove('on'),3000);
+  setTimeout(()=>{btn.disabled=false;btn.textContent=t;},1500);
+};
+$('#callBtnSheet').onclick = ()=>callWaiter($('#callBtnSheet'));
+
+applyLang(); renderCats(); renderGrid();
+$('#mesaPill').textContent = `📍 Mesa ${currentMesa}`;
+
+/* ---- switch de papel (demo only, simula login por role) ---- */
+const CALL_WORD = {talher:'talheres 🍴', guardanapo:'guardanapos 🧻', agua:'água 💧', gelo:'gelo 🧊'};
+function callText(c){
+  if(CALL_WORD[c.kind]){ const q = c.items && c.items[0] && c.items[0].qty; return q ? `pediu <b>${esc(q)}</b> ${CALL_WORD[c.kind]}` : `pediu ${CALL_WORD[c.kind]}`; }
+  return CALL_LABEL[c.kind]||'chamando o garçom';
+}
+const CALL_LABEL = {garcom:'chamando o garçom', conta:'quer fechar a conta', talher:'pediu talheres 🍴', guardanapo:'pediu guardanapos 🧻', agua:'pediu água 💧', gelo:'pediu gelo 🧊'};
+const ROLE_VIEWS = ['cliente','garcom','cozinha','gerente','dono','superadmin'];
+function setMode(m){
+  document.body.classList.remove('booting');
+  setTimeout(()=>{ try{ renderAll(); }catch(e){} }, 0);
+  if(['garcom','cozinha','gerente','dono'].includes(m)) startRealtime();
+  ROLE_VIEWS.forEach(r=>{
+    const el = document.getElementById(r==='gerente' ? 'painel' : r);
+    if(el) el.classList.toggle('on', r===m);
+  });
+  document.querySelectorAll('#roleBar button').forEach(b=>b.classList.toggle('active', b.dataset.role===m));
+  document.body.classList.toggle('staffbg', !!document.body.dataset.hasBg && ['garcom','cozinha','gerente','dono'].includes(m));
+  if(m==='gerente') renderQR();
+  if(m==='garcom'){ renderGChamados(); renderGOrders(); }
+  if(m==='cozinha') renderKOrders();
+  if(m==='dono') renderDonoStats();
+  if(m==='superadmin') renderSuperAdmin();
+}
+
+$('#cliente').classList.add('on');
+document.querySelectorAll('#roleBar button').forEach(b=>b.onclick=async ()=>{
+  const r = b.dataset.role;
+  if(r==='cliente'){ if(SB_ON && !clienteRestaurant) await loadRestaurant('casa-verde'); renderCats(); renderGrid(); setMode('cliente'); }
+  else if(SB_ON){ await enterStaffArea(r); }
+  else setMode(r);
+});
+$('#donoGoGerente').onclick = ()=>setMode('gerente');
+
+function waitTag(c){
+  if(c.status!=='new' || !c.ts) return '';
+  const m = Math.floor((Date.now()-new Date(c.ts).getTime())/60000);
+  if(m<1) return '';
+  return ` · <b style="${m>=5?'color:#ff6a3d;':''}">há ${m} min${m>=5?' ⚠️':''}</b>`;
+}
+setInterval(()=>{ const g=document.getElementById('garcom'); if(g && g.classList.contains('on')) renderGChamados(); }, 30000);
+function renderGChamados(){
+  $('#gchamados').innerHTML = calls.slice().reverse().map((c,ri)=>{
+    const i = calls.length-1-ri;
+    const isBill = c.kind==='conta' && c.items && c.items.length;
+    const billHtml = isBill ? `
+      <ul style="margin:8px 0;padding-left:18px;font-size:13px;">${c.items.map(it=>`<li>${esc(it.qty)}x ${esc(it.name)}${optsHtml(it)} — ${esc(it.price)}</li>`).join('')}</ul>
+      <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;margin-bottom:8px;">Total: R$ ${Number(c.total||0).toFixed(2).replace('.',',')}</div>` : '';
+    return `<div class="call-row ${c.status==='new'?'new':''}" style="${isBill?'flex-direction:column;align-items:stretch;':''}">
+      <div class="cl"><span class="mesa">Mesa ${esc(c.mesa)}</span><span class="time">${c.time} · ${callText(c)}${waitTag(c)}</span></div>
+      ${billHtml}
+      ${c.status==='new'
+        ? `<button class="stbtn new" data-gi="${i}" style="${isBill?'align-self:flex-start;':''}">${isBill?'Conta fechada':'Atender'}</button>`
+        : `<button class="stbtn done">✓ Concluído</button>`}
+    </div>`;
+  }).join('') || '<p style="color:var(--muted);font-size:14px;">Nenhum chamado ainda.</p>';
+  $('#gchamados').querySelectorAll('[data-gi]').forEach(b=>b.onclick=()=>{
+    const c = calls[+b.dataset.gi];
+    markCall(c.id);
+    if(c.kind==='conta' && SB_ON && myRestaurant){
+      sbWrite(`tables?restaurant_id=eq.${myRestaurant.id}&number=eq.${encodeURIComponent(c.mesa)}`,'PATCH',{status:'closed'}, true).catch(e=>console.error(e));
+    }
+  });
+}
+async function renderDonoStats(){
+  await loadMesas();
+  const hoje = new Date().toDateString();
+  const abertos = calls.filter(c=>c.status==='new').length;
+  $('#donoStats').innerHTML = `
+    <div class="statcard"><div class="snum">${calls.filter(c=>c.ts && new Date(c.ts)>=bizDayStart()).length}</div><div class="slabel">Chamados hoje</div></div>
+    <div class="statcard"><div class="snum">${abertos}</div><div class="slabel">Aguardando garçom</div></div>
+    <div class="statcard"><div class="snum">${mesas.length}</div><div class="slabel">Mesas ativas</div></div>
+    <div class="statcard"><div class="snum">${items.length}</div><div class="slabel">Pratos no cardápio</div></div>
+    <div class="statcard"><div class="snum" id="avgAttend">—</div><div class="slabel">Tempo médio p/ atender</div></div>
+    <div class="statcard"><div class="snum" id="topDish" style="font-size:15px;">—</div><div class="slabel">Prato mais visto</div></div>`;
+  if(!(SB_ON && myRestaurant)) return;
+  try{
+    const done = await sbGet(`calls?restaurant_id=eq.${myRestaurant.id}&status=eq.done&attended_at=not.is.null&select=created_at,attended_at`, true);
+    if(done.length){
+      const avgMs = done.reduce((s,c)=>s+(new Date(c.attended_at)-new Date(c.created_at)),0)/done.length;
+      $('#avgAttend').textContent = Math.round(avgMs/60000)+' min';
+    } else $('#avgAttend').textContent = '—';
+  }catch(e){ console.error('avgAttend', e); }
+  renderDonoReports();
+  renderDonoInsights();
+  try{
+    const views = await sbGet(`item_views?restaurant_id=eq.${myRestaurant.id}&select=item_id`, true);
+    if(views.length){
+      const counts = {}; views.forEach(v=>counts[v.item_id]=(counts[v.item_id]||0)+1);
+      const topId = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+      const it = items.find(i=>String(i.id)===String(topId));
+      $('#topDish').textContent = it ? `${it.name} (${counts[topId]}x)` : '—';
+    }
+  }catch(e){ console.error('topDish', e); }
+}
+async function teamEmails(){
+  const map = {};
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/list_restaurant_team`, {method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+(await freshToken()), 'Content-Type':'application/json'}, body: JSON.stringify({p_restaurant_id: myRestaurant.id})});
+    const rows = await r.json(); if(r.ok) rows.forEach(m=>map[m.user_id]=m.email);
+  }catch(e){ console.error('teamEmails', e); }
+  return map;
+}
+let _lastInsights = 0, _expPeriod = 'month';
+const TZ_BR = 'America/Sao_Paulo';
+const brDate = x => new Date(x).toLocaleDateString('sv-SE',{timeZone:TZ_BR});
+const brTime = x => new Date(x).toLocaleTimeString('pt-BR',{timeZone:TZ_BR,hour:'2-digit',minute:'2-digit'});
+function unitNum(p){ const t = String(p==null?'':p).replace('R$','').trim(); return /^[0-9.]+,[0-9]{2}$/.test(t) ? parseFloat(t.replace(/\./g,'').replace(',','.')) : 0; }
+function expRange(k){
+  const L = new Date(Date.now()-3*36e5), y=L.getUTCFullYear(), m=L.getUTCMonth(), now = new Date(Date.now()+60000);
+  if(k==='prev_month') return [new Date(Date.UTC(y,m-1,1,3)), new Date(Date.UTC(y,m,1,3)), 'mes-passado'];
+  if(k==='30d') return [new Date(Date.now()-30*864e5), now, 'ultimos-30-dias'];
+  if(k==='year') return [new Date(Date.UTC(y,0,1,3)), now, 'ano-'+y];
+  return [new Date(Date.UTC(y,m,1,3)), now, 'mes-'+y+'-'+String(m+1).padStart(2,'0')];
+}
+function loadXLSX(){
+  return new Promise((res,rej)=>{
+    if(window.XLSX) return res(window.XLSX);
+    const sc = document.createElement('script'); sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    sc.onload=()=>window.XLSX?res(window.XLSX):rej(new Error('xlsx')); sc.onerror=()=>rej(new Error('xlsx load')); document.head.appendChild(sc);
+  });
+}
+function downloadCSV(name, rows){
+  const csv = '\ufeff'+rows.map(r=>r.map(v=>{ v = v==null?'':(typeof v==='number'?String(v).replace('.',','):String(v)); return /[;"\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }).join(';')).join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download = name+'.csv'; document.body.appendChild(a); a.click(); a.remove();
+}
+async function exportReport(){
+  const btn = document.getElementById('expBtn'), msg = document.getElementById('expMsg');
+  if(!btn || !myRestaurant) return;
+  btn.disabled = true; msg.textContent = 'Gerando planilha...';
+  try{
+    const [from,to,label] = expRange(_expPeriod);
+    const r = await fetch(SB_URL+'/rest/v1/rpc/owner_export', {method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+(await freshToken()), 'Content-Type':'application/json'}, body: JSON.stringify({p_restaurant:myRestaurant.id, p_from:from.toISOString(), p_to:to.toISOString()})});
+    if(!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    const lineRows = [], byDay = {}, byItem = {}, orderDay = {};
+    d.orders.forEach(o=>{
+      const day = brDate(o.created_at); const dd = byDay[day] || (byDay[day]={orders:0,rev:0}); dd.orders++;
+      (Array.isArray(o.items)?o.items:[]).forEach(it=>{
+        const q = Math.max(1, Math.min(99, parseInt(it.qty)||1)), u = unitNum(it.price);
+        const opts = (Array.isArray(it.opts)?it.opts:[]).map(x=>(x.g?x.g+': ':'')+(x.q>1?x.q+'x ':'')+x.n).join(' | ');
+        lineRows.push([day, brTime(o.created_at), o.mesa, String(it.name||''), opts, it.note||'', q, u, +(q*u).toFixed(2)]);
+        dd.rev += q*u; const bi = byItem[it.name] || (byItem[it.name]={qty:0,rev:0}); bi.qty += q; bi.rev += q*u;
+      });
+    });
+    const totRev = Object.values(byDay).reduce((a,b)=>a+b.rev,0), totOrd = d.orders.length;
+    const callsRows = d.calls.map(c=>[brDate(c.created_at), brTime(c.created_at), c.mesa, c.kind, c.status==='done'?'Atendido':'Aberto', c.attended_at?brTime(c.attended_at):'', c.attended_at?+((new Date(c.attended_at)-new Date(c.created_at))/60000).toFixed(1):'']);
+    const nBills = d.calls.filter(c=>c.kind==='conta').length;
+    const resumo = [
+      ['Relatório — '+(clienteRestaurant?clienteRestaurant.name:'Restaurante')],
+      ['Período', brDate(from)+' a '+brDate(new Date(Math.min(to.getTime(),Date.now())))],
+      [],
+      ['Pedidos pela sacola', totOrd],
+      ['Faturamento estimado (R$)', +totRev.toFixed(2)],
+      ['Ticket médio (R$)', totOrd ? +(totRev/totOrd).toFixed(2) : 0],
+      ['Chamados (todos os tipos)', d.calls.length],
+      ['Contas pedidas', nBills],
+      [],
+      ['Obs.: faturamento estimado = soma dos preços dos itens pedidos pela sacola. Não inclui pedidos feitos só ao garçom e não substitui o caixa.']
+    ];
+    const dayRows = [['Data','Pedidos','Faturamento estimado (R$)'], ...Object.keys(byDay).sort().map(k=>[k, byDay[k].orders, +byDay[k].rev.toFixed(2)])];
+    const itemRows = [['Item','Quantidade','Faturamento estimado (R$)'], ...Object.entries(byItem).sort((a,b)=>b[1].qty-a[1].qty).map(([n,v])=>[n, v.qty, +v.rev.toFixed(2)])];
+    const name = 'relatorio-'+(clienteRestaurant?clienteRestaurant.slug:'restaurante')+'-'+label;
+    let XL = null; try{ XL = await loadXLSX(); }catch(e){ console.warn('xlsx indisponível, usando CSV', e); }
+    if(XL){
+      const wb = XL.utils.book_new();
+      const add = (title, rows, widths)=>{ const ws = XL.utils.aoa_to_sheet(rows); if(widths) ws['!cols'] = widths.map(w=>({wch:w})); XL.utils.book_append_sheet(wb, ws, title); };
+      add('Resumo', resumo, [30,34]);
+      add('Vendas por dia', dayRows, [14,10,26]);
+      add('Itens', itemRows, [40,12,26]);
+      add('Pedidos', [['Data','Hora','Mesa','Item','Opções','Observação','Qtd','Preço unit. (R$)','Total (R$)'], ...lineRows], [12,8,7,34,50,24,6,15,12]);
+      add('Chamados', [['Data','Hora','Mesa','Tipo','Status','Atendido às','Tempo (min)'], ...callsRows], [12,8,7,14,10,12,12]);
+      XL.writeFile(wb, name+'.xlsx');
+      msg.textContent = `Pronto: ${totOrd} pedidos e ${d.calls.length} chamados no período.`;
+    } else {
+      downloadCSV(name+'-pedidos', [['Data','Hora','Mesa','Item','Opções','Observação','Qtd','Preço unit. (R$)','Total (R$)'], ...lineRows]);
+      msg.textContent = 'Não consegui carregar o gerador de .xlsx; baixei os pedidos em CSV (abre no Excel).';
+    }
+  }catch(e){ console.error('exportReport', e); msg.textContent = 'Não consegui gerar o relatório agora. Tente de novo.'; }
+  btn.disabled = false;
+}
+document.addEventListener('change', e=>{ if(e.target && e.target.id==='expPeriod') _expPeriod = e.target.value; });
+document.addEventListener('click', e=>{ if(e.target && e.target.id==='expBtn') exportReport(); });
+async function renderDonoInsights(){
+  if(!(SB_ON && myRestaurant)) return;
+  const dv = document.getElementById('dono'); if(!(dv && dv.classList.contains('on'))) return;
+  if(Date.now()-_lastInsights < 45000) return; _lastInsights = Date.now();
+  const box = document.getElementById('donoInsights'); if(!box) return;
+  try{
+    const r = await fetch(SB_URL+'/rest/v1/rpc/owner_stats', {method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+(await freshToken()), 'Content-Type':'application/json'}, body: JSON.stringify({p_restaurant: myRestaurant.id})});
+    if(!r.ok) throw new Error(await r.text());
+    const d = await r.json(), P = d.periods;
+    let H = null;
+    try{
+      const rh = await fetch(SB_URL+'/rest/v1/rpc/owner_history', {method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+(await freshToken()), 'Content-Type':'application/json'}, body: JSON.stringify({p_restaurant: myRestaurant.id})});
+      if(rh.ok) H = await rh.json();
+    }catch(e){ console.warn('owner_history', e); }
+    const brl = n => 'R$ '+Number(n||0).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+,)/g,'.');
+    const delta = (a,b)=> b>0 ? (()=>{ const pc=Math.round((a-b)/b*100); return `<small style="color:${pc>=0?'#2e9e5b':'var(--ember)'};font-weight:700;">${pc>=0?'▲':'▼'} ${Math.abs(pc)}%</small>`; })() : '';
+    const card = (title, cur, prev, prevLabel)=>`
+      <div class="statcard" style="text-align:left;padding:16px;">
+        <div class="slabel" style="font-weight:700;margin-bottom:8px;">${esc(title)}</div>
+        <div class="snum" style="font-size:24px;">${brl(cur.revenue)}</div>
+        <div class="slabel" style="margin:4px 0 8px;">faturamento estimado ${prev?delta(cur.revenue,prev.revenue)+' <span style="opacity:.7;">vs '+esc(prevLabel)+'</span>':''}</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div><b>${cur.orders}</b> <span class="slabel">pedidos ${prev?delta(cur.orders,prev.orders):''}</span></div>
+          <div><b>${cur.orders?brl(cur.revenue/cur.orders):'—'}</b> <span class="slabel">ticket médio</span></div>
+        </div>
+      </div>`;
+    const topMax = Math.max(1, ...d.top_items.map(t=>t.qty));
+    const tops = d.top_items.length ? d.top_items.map((t,i)=>`<div style="margin:7px 0;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;"><span>${i+1}. ${esc(t.name)}</span><b>${t.qty}x</b></div><div style="height:6px;border-radius:4px;background:var(--line);margin-top:3px;"><div style="height:100%;width:${Math.round(t.qty/topMax*100)}%;border-radius:4px;background:var(--ember);"></div></div></div>`).join('') : '<p style="color:var(--muted);font-size:13px;">Ainda sem pedidos pela sacola nos últimos 30 dias.</p>';
+    const tabs = d.top_tables.length ? d.top_tables.map(t=>`<div class="prow"><div class="pinfo"><b>Mesa ${esc(t.mesa)}</b><span>${t.orders} pedidos</span></div></div>`).join('') : '<p style="color:var(--muted);font-size:13px;">Sem dados ainda.</p>';
+    const a = d.attend||{};
+    const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    const wk = Array.isArray(d.by_weekday) ? d.by_weekday : [];
+    const wkMax = Math.max(1, ...wk.map(w=>Number(w.revenue)||0));
+    const wkBest = wk.reduce((b,w)=> (Number(w.revenue)||0)>(Number(b.revenue)||0) ? w : b, {revenue:0,dow:-1});
+    const weekdayHtml = wk.some(w=>w.orders>0) ? wk.map(w=>`<div style="margin:7px 0;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;"><span>${DOW[w.dow]}${w.dow===wkBest.dow?' ⭐':''}</span><span><b>${brl(w.revenue)}</b> <span style="color:var(--muted);">· ${w.orders} pedidos</span></span></div><div style="height:6px;border-radius:4px;background:var(--line);margin-top:3px;"><div style="height:100%;width:${Math.round((Number(w.revenue)||0)/wkMax*100)}%;border-radius:4px;background:var(--ember);"></div></div></div>`).join('') : '<p style="color:var(--muted);font-size:13px;">Ainda sem pedidos suficientes.</p>';
+    const MES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    let yearHtml = '';
+    if(H){
+      const bm = H.by_month||[], bmMax = Math.max(1, ...bm.map(m=>Number(m.revenue)||0));
+      const monthsHtml = bm.map(m=>`<div style="margin:6px 0;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;"><span>${MES[m.month-1]}</span><span><b>${brl(m.revenue)}</b> <span style="color:var(--muted);">· ${m.orders} pedidos</span></span></div><div style="height:6px;border-radius:4px;background:var(--line);margin-top:3px;"><div style="height:100%;width:${Math.round((Number(m.revenue)||0)/bmMax*100)}%;border-radius:4px;background:var(--ember);"></div></div></div>`).join('');
+      const years = (H.by_year||[]).map((y,i,arr)=>{ const prev = arr[i+1]; return `<div class="prow"><div class="pinfo"><b>${y.year}</b><span>${brl(y.revenue)} · ${y.orders} pedidos ${prev?delta(y.revenue,prev.revenue):''}</span></div></div>`; }).join('') || '<p style="color:var(--muted);font-size:13px;">Sem dados ainda.</p>';
+      yearHtml = `<h3 style="margin:22px 0 4px;">Faturamento por mês (${H.year})</h3>${monthsHtml}
+        <h3 style="margin:22px 0 6px;">Faturamento por ano</h3>${years}`;
+    }
+    const expHtml = `<h3 style="margin:22px 0 6px;">Exportar relatório</h3>
+      <p style="margin:0 0 8px;color:var(--muted);font-size:12px;">Baixa uma planilha (.xlsx) com resumo, vendas por dia, itens, pedidos e chamados do período.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <select id="expPeriod" style="flex:1;min-width:150px;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;">
+          ${[['month','Este mês'],['prev_month','Mês passado'],['30d','Últimos 30 dias'],['year','Este ano']].map(([v,l])=>`<option value="${v}" ${v===_expPeriod?'selected':''}>${l}</option>`).join('')}
+        </select>
+        <button class="callbtn" id="expBtn" style="flex:1;min-width:150px;">Baixar planilha</button>
+      </div><p id="expMsg" style="color:var(--muted);font-size:12px;margin:8px 0 0;"></p>`;
+    box.innerHTML = `<h3 style="margin:0 0 10px;">Vendas e pedidos</h3>
+      <div style="display:grid;gap:12px;">${card('Hoje (desde 06:00)',P.day,P.prev_day,'ontem')}${card('Este mês',P.month,P.prev_month,'mês passado')}${card('Este ano',P.year)}</div>
+      <p style="color:var(--muted);font-size:12px;margin:8px 0 0;">Faturamento estimado = soma dos preços dos itens pedidos pela sacola. Não inclui pedidos feitos só falando com o garçom e não substitui o caixa.</p>
+      <h3 style="margin:22px 0 4px;">Faturamento por dia da semana</h3>
+      <p style="margin:0 0 6px;color:var(--muted);font-size:12px;">Últimos 90 dias (estimado). Mostra qual dia da semana vende mais.</p>${weekdayHtml}
+      ${yearHtml}
+      <h3 style="margin:22px 0 4px;">Pratos mais pedidos (30 dias)</h3>${tops}
+      <h3 style="margin:22px 0 6px;">Mesas que mais pedem (30 dias)</h3>${tabs}
+      <h3 style="margin:22px 0 6px;">Atendimento</h3>
+      <div class="statgrid">
+        <div class="statcard"><div class="snum">${a.avg_min_day!=null?a.avg_min_day+' min':'—'}</div><div class="slabel">Tempo médio hoje</div></div>
+        <div class="statcard"><div class="snum">${a.avg_min_30d!=null?a.avg_min_30d+' min':'—'}</div><div class="slabel">Tempo médio 30 dias</div></div>
+        <div class="statcard"><div class="snum">${a.open_now||0}</div><div class="slabel">Chamados abertos agora</div></div>
+        <div class="statcard"><div class="snum">${a.bills_30d||0}</div><div class="slabel">Contas pedidas (30 dias)</div></div>
+      </div>${expHtml}`;
+  }catch(e){ console.error('donoInsights', e); box.innerHTML = '<p style="color:var(--muted);font-size:13px;">Não consegui carregar as vendas agora. Tente de novo em instantes.</p>'; }
+}
+let _lastReports = 0;
+async function renderDonoReports(){
+  if(!(SB_ON && myRestaurant)) return;
+  const dv = document.getElementById('dono'); if(!(dv && dv.classList.contains('on'))) return;
+  if(Date.now()-_lastReports < 60000) return; _lastReports = Date.now();
+  let box = document.getElementById('donoReports');
+  if(!box){ box = document.createElement('div'); box.id='donoReports'; box.style.marginTop='22px'; $('#donoInsights').insertAdjacentElement('afterend', box); }
+  try{
+    const since = new Date(Date.now()-30*864e5).toISOString();
+    const [cs, os] = await Promise.all([
+      sbGet(`calls?restaurant_id=eq.${myRestaurant.id}&created_at=gte.${since}&select=created_at,attended_at,attended_by,status&limit=3000`, true),
+      sbGet(`orders?restaurant_id=eq.${myRestaurant.id}&created_at=gte.${since}&select=created_at&limit=3000`, true)
+    ]);
+    const hrs = Array(24).fill(0);
+    [...cs, ...os].forEach(x=>{ hrs[new Date(x.created_at).getHours()]++; });
+    const max = Math.max(1, ...hrs);
+    const bars = hrs.map((v,h)=>`<i title="${h}h: ${v}" style="height:${Math.max(2, Math.round(v/max*100))}%"></i>`).join('');
+    const labels = hrs.map((v,h)=>`<span>${h%3===0?h+'h':''}</span>`).join('');
+    const by = {};
+    cs.filter(c=>c.status==='done' && c.attended_at && c.attended_by).forEach(c=>{
+      const b = by[c.attended_by] || (by[c.attended_by]={n:0,ms:0});
+      b.n++; b.ms += new Date(c.attended_at)-new Date(c.created_at);
+    });
+    const emails = Object.keys(by).length ? await teamEmails() : {};
+    const rows = Object.entries(by).sort((a,b)=>b[1].n-a[1].n).map(([uid,b])=>`<div class="prow"><div class="pinfo"><b>${esc(emails[uid]||'Equipe')}</b><span>${b.n} atendimentos · média ${Math.max(1,Math.round(b.ms/b.n/60000))} min</span></div></div>`).join('')
+      || '<p style="color:var(--muted);font-size:13px;">Ainda sem dados. Os atendimentos feitos daqui para frente aparecem aqui.</p>';
+    box.innerHTML = `<h3 style="margin:0 0 4px;">Horários de pico (últimos 30 dias)</h3>
+      <p style="margin:0;color:var(--muted);font-size:12px;">Chamados e pedidos por hora do dia.</p>
+      <div class="peakbars">${bars}</div><div class="peaklabels">${labels}</div>
+      <h3 style="margin:22px 0 6px;">Atendimento por garçom</h3>${rows}`;
+  }catch(e){ console.error('donoReports', e); }
+}
+async function renderSuperAdmin(){
+  if(!SB_ON){
+    $('#saStats').innerHTML = '';
+    $('#saTable').innerHTML = '<tr><td colspan="4" style="color:var(--muted);">Banco não conectado nesta demo offline.</td></tr>';
+    return;
+  }
+  $('#saTable').innerHTML = '<tr><td colspan="4" style="color:var(--muted);">Carregando...</td></tr>';
+  try{
+    const todayIso = new Date(); todayIso.setHours(0,0,0,0);
+    const [rs, cs] = await Promise.all([
+      sbGet('restaurants?select=*&order=created_at.asc', true),
+      sbGet('calls?select=restaurant_id,created_at', true)
+    ]);
+    const countsToday = {};
+    cs.forEach(c=>{ if(new Date(c.created_at) >= todayIso) countsToday[c.restaurant_id] = (countsToday[c.restaurant_id]||0)+1; });
+    const total = Object.values(countsToday).reduce((a,b)=>a+b,0);
+    $('#saStats').innerHTML = `
+      <div class="statcard"><div class="snum">${rs.length}</div><div class="slabel">Restaurantes</div></div>
+      <div class="statcard"><div class="snum">${rs.length}</div><div class="slabel">Ativos</div></div>
+      <div class="statcard"><div class="snum">${total}</div><div class="slabel">Chamados na rede hoje</div></div>`;
+    $('#saTable').innerHTML = rs.map(r=>`
+      <tr><td>${esc(r.name)}</td><td>/${esc(r.slug)}</td><td>${countsToday[r.id]||0}</td>
+      <td><span class="sabadge on">Ativo</span></td></tr>`).join('') || '<tr><td colspan="4" style="color:var(--muted);">Nenhum restaurante ainda.</td></tr>';
+  }catch(e){ console.error('renderSuperAdmin', e); $('#saTable').innerHTML = '<tr><td colspan="4" style="color:var(--ember);">Não consegui carregar os restaurantes.</td></tr>'; }
+}
+document.getElementById('sa-create') && (document.getElementById('sa-create').onclick = async ()=>{
+  const name = $('#sa-name').value.trim();
+  let slug = $('#sa-slug').value.trim().toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-+|-+$/g,'');
+  $('#sa-msg').textContent = '';
+  if(!name || !slug){ $('#sa-msg').textContent = 'Preencha nome e slug.'; return; }
+  try{
+    await sbWrite('restaurants','POST',{name, slug}, true);
+    $('#sa-name').value=''; $('#sa-slug').value='';
+    renderSuperAdmin();
+  }catch(e){ $('#sa-msg').textContent = 'Erro: '+e.message; }
+});
+
+/* ---- painel: chamados ---- */
+let calls = [];
+
+/* ---- BANCO NA NUVEM (Supabase) ---- */
+const SB_URL = 'https://opglmnshkrvbrrtufuzq.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2xtbnNoa3J2YnJydHVmdXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2MzMxODAsImV4cCI6MjEwNjIwOTE4MH0.mwI-51uGvG5hcdQQ3t6EzwLEV2AqTVCqUiOVjZrxdo4';
+const SB_ON = !SB_URL.startsWith('COLE');
+function jwtExp(t){ try{ return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).exp||0; }catch(e){ return 0; } }
+let _refreshing = null;
+async function ensureSession(){
+  if(!session || !session.refresh_token) return;
+  if(jwtExp(session.access_token) - 90 > Date.now()/1000) return;
+  if(!_refreshing){
+    _refreshing = (async ()=>{
+      try{
+        const j = await sbAuth('token?grant_type=refresh_token', {refresh_token: session.refresh_token});
+        if(j.access_token) saveSession(j);
+      }catch(e){
+        console.error('refresh', e);
+        if(/invalid|expired|not found|already/i.test(e.message||'')){
+          clearSession(); try{ updateAccountBtn(); }catch(_){}
+          const cl = document.getElementById('cliente');
+          if(cl && !cl.classList.contains('on')){ try{ openAuth(null); }catch(_){} }
+        }
+      }finally{ _refreshing = null; }
+    })();
+  }
+  await _refreshing;
+}
+async function freshToken(){ await ensureSession(); return session ? session.access_token : SB_KEY; }
+async function sb(path, method='GET', body, forceAnon){
+  const tok = (session && !forceAnon) ? await freshToken() : SB_KEY;
+  const r = await fetch(SB_URL+'/rest/v1/'+path, {method, headers:{apikey:SB_KEY, Authorization:'Bearer '+tok, 'Content-Type':'application/json', Prefer:'return=minimal'}, body: body?JSON.stringify(body):undefined});
+  if(!r.ok) throw new Error(await r.text());
+  return method==='GET' ? r.json() : null;
+}
+async function sbGet(path, useAuth){
+  const tok = (useAuth && session) ? await freshToken() : SB_KEY;
+  const r = await fetch(SB_URL+'/rest/v1/'+path, {headers:{apikey:SB_KEY, Authorization:'Bearer '+tok}});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbWrite(path, method, body, useAuth){
+  const tok = (useAuth && session) ? await freshToken() : SB_KEY;
+  const r = await fetch(SB_URL+'/rest/v1/'+path, {method, headers:{apikey:SB_KEY, Authorization:'Bearer '+tok, 'Content-Type':'application/json', Prefer:'return=representation'}, body: JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  return method==='DELETE' ? null : r.json();
+}
+async function sbAuth(pathAndQuery, body){
+  const r = await fetch(SB_URL+'/auth/v1/'+pathAndQuery, {method:'POST', headers:{apikey:SB_KEY, 'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const j = await r.json();
+  if(!r.ok) throw new Error(j.error_description || j.msg || 'Erro ao autenticar');
+  return j;
+}
+let session = JSON.parse(localStorage.getItem('sb_session')||'null');
+let myRestaurant = null, myRole = null, isPlatformAdmin = false, clienteRestaurant = null;
+let catNameToId = {};
+let authMode = 'signin', pendingArea = null;
+function saveSession(s){ session = s; try{ localStorage.setItem('sb_session', JSON.stringify(s)); }catch(e){} }
+function clearSession(){ session=null; myRole=null; myRestaurant=null; isPlatformAdmin=false; try{ localStorage.removeItem('sb_session'); }catch(e){} }
+function updateAccountBtn(){
+  const btn = $('#accountBtn');
+  if(session && session.user){ btn.style.display='block'; } else { btn.style.display='none'; }
+}
+$('#accountBtn').onclick = ()=>{
+  $('#accEmail').textContent = session && session.user ? session.user.email : '';
+  $('#accMsg').textContent = '';
+  $('#accountWrap').classList.add('on');
+};
+$('#accCancel').onclick = ()=> $('#accountWrap').classList.remove('on');
+$('#accLogout').onclick = async ()=>{
+  const tok = session && session.access_token;
+  try{ if(rtWS) rtWS.close(); }catch(e){}
+  clearSession(); updateAccountBtn();
+  $('#accountWrap').classList.remove('on');
+  try{ if(tok) await fetch(SB_URL+'/auth/v1/logout', {method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+tok}}); }catch(e){}
+  location.href = '/entrar';
+};
+$('#accDelete').onclick = async ()=>{
+  if(!confirm('Isso remove seu acesso a todas as áreas de restaurante (e de super admin, se for o caso). Seu login continua existindo, mas sem nenhuma permissão. Confirma?')) return;
+  $('#accMsg').textContent = 'Removendo...';
+  try{
+    if(isPlatformAdmin) await sbWrite(`platform_admins?user_id=eq.${session.user.id}`, 'DELETE', null, true);
+    if(myRestaurant) await sbWrite(`restaurant_members?user_id=eq.${session.user.id}&restaurant_id=eq.${myRestaurant.id}`, 'DELETE', null, true);
+    clearSession(); updateAccountBtn();
+    $('#accountWrap').classList.remove('on');
+    alert('Acesso removido. Você será desconectado.');
+    location.href = '/entrar';
+  }catch(e){ $('#accMsg').textContent = 'Erro: '+e.message; }
+};
+function openAuth(area, msg){ pendingArea = area; $('#authMsg').textContent = msg||''; $('#authWrap').classList.add('on'); setTimeout(()=>{ try{ $('#auth-email').focus(); }catch(e){} }, 50); }
+function authErr(e){
+  const m = (e && e.message) || '';
+  if(e instanceof TypeError || /failed to fetch|networkerror|load failed/i.test(m)) return 'Sem conexão com a internet agora. Tente de novo.';
+  if(/invalid login|invalid credentials/i.test(m)) return 'E-mail ou senha incorretos.';
+  if(/already registered|already been registered/i.test(m)) return 'Esse e-mail já tem conta. Toque em "Já tenho conta" para entrar.';
+  if(/at least|weak|short/i.test(m)) return 'A senha precisa ter pelo menos 8 caracteres.';
+  if(/rate limit|too many|security purposes/i.test(m)) return 'Muitas tentativas. Aguarde um minuto e tente de novo.';
+  if(/valid email|invalid email|unable to validate email/i.test(m)) return 'Digite um e-mail válido.';
+  if(/email not confirmed/i.test(m)) return 'Confirme seu e-mail antes de entrar (veja sua caixa de entrada).';
+  return m || 'Não foi possível entrar. Tente de novo.';
+}
+['#auth-email','#auth-pass'].forEach(sel=>{ const el=document.querySelector(sel); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#authSubmit').click(); } }); });
+$('#authToggle').onclick = ()=>{
+  authMode = authMode==='signin' ? 'signup' : 'signin';
+  $('#authTitle').textContent = authMode==='signin' ? 'Entrar' : 'Criar conta';
+  $('#authToggle').textContent = authMode==='signin' ? 'Criar conta' : 'Já tenho conta';
+};
+$('#authSubmit').onclick = async ()=>{
+  const email = $('#auth-email').value.trim(), pass = $('#auth-pass').value;
+  if($('#authSubmit').disabled) return;
+  if(!email || !pass){ $('#authMsg').textContent = 'Digite o e-mail e a senha.'; return; }
+  $('#authSubmit').disabled = true;
+  $('#authMsg').textContent = authMode==='signin' ? 'Entrando...' : 'Criando conta...';
+  try{
+    const ep = authMode==='signin' ? 'token?grant_type=password' : 'signup';
+    const j = await sbAuth(ep, {email, password:pass});
+    if(!j.access_token){ $('#authMsg').textContent = 'Conta criada. Verifique seu email para confirmar, depois entre.'; return; }
+    saveSession(j);
+    $('#auth-pass').value = '';
+    $('#authWrap').classList.remove('on');
+    await enterStaffArea(pendingArea);
+  }catch(e){ $('#authMsg').textContent = authErr(e); }
+  finally{ $('#authSubmit').disabled = false; }
+};
+async function resolveMembership(){
+  isPlatformAdmin = false; myRole = null; myRestaurant = null;
+  try{
+    const pa = await sbGet(`platform_admins?user_id=eq.${session.user.id}&select=user_id`, true);
+    isPlatformAdmin = pa.length>0;
+  }catch(e){ console.error('resolveMembership platform_admins', e); }
+  try{
+    const mem = await sbGet(`restaurant_members?user_id=eq.${session.user.id}&active=eq.true&select=role,restaurant_id,restaurants(id,name,slug)`, true);
+    if(mem.length){ myRole = mem[0].role; myRestaurant = mem[0].restaurants; }
+  }catch(e){ console.error('resolveMembership restaurant_members', e); }
+}
+
+const FLAME_SVG = '<svg viewBox="0 0 24 24" width="44" height="44" aria-hidden="true"><path d="M12 1.5c.9 3.2-.9 4.8-2.6 6.9C7.9 10.3 7 12 7 14.3a5 5 0 0 0 10 0c0-2.1-1-3.4-2-4.6.3 1.9-.5 2.8-1.6 2.9 1-3.2-.4-6.3-1.4-11.1z" fill="#FF7A1A"/><path d="M12 12.2c.4 1.3-.5 1.9-1 2.7-.4.7-.2 1.8.6 2.2a2.3 2.3 0 0 0 3.2-1.8c.1-1-.5-1.6-1-2.2.1.8-.3 1.2-.8 1.2.4-1.2 0-2.3-1-2.1z" fill="#FFD27A"/></svg>';
+function hexToRgba(hex, a){
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex||''); if(!m) return `rgba(0,0,0,${a})`;
+  const n = parseInt(m[1],16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;
+}
+function applyRestaurantTheme(r){
+  try{
+    document.title = r.name + ' — Cardápio Digital';
+    let tc = document.querySelector('meta[name=theme-color]');
+    if(!tc){ tc = document.createElement('meta'); tc.name='theme-color'; document.head.appendChild(tc); }
+    tc.content = r.hero_color || r.accent_color || '#14100E';
+    if(r.logo_url){
+      let ic = document.querySelector('link[rel=icon]');
+      if(!ic){ ic = document.createElement('link'); ic.rel='icon'; document.head.appendChild(ic); }
+      ic.href = absUrl(r.logo_url);
+    }
+  }catch(e){}
+  const root = document.documentElement.style;
+  if(r.theme==='grill'){
+    root.setProperty('--paper','#14100E'); root.setProperty('--card','#1E1815');
+    root.setProperty('--ink','#F4EDE4'); root.setProperty('--line','rgba(244,237,228,.13)');
+    root.setProperty('--panel','#2A211C'); root.setProperty('--muted','#A89B90');
+    root.setProperty('--gold','#F2A33A');
+  }
+  if(r.accent_color){
+    root.setProperty('--ember', r.accent_color);
+    root.setProperty('--ember-ink', hexToRgba(r.accent_color, .18));
+  }
+  if(r.menu_bg_url){
+    const bg = document.getElementById('bgFixed');
+    if(bg){
+      bg.style.backgroundImage = `linear-gradient(180deg, rgba(20,16,14,.9) 0%, rgba(20,16,14,.94) 100%), url('${absUrl(r.menu_bg_url)}')`;
+      document.body.classList.add('hasbg');
+    }
+  }
+  const hero = document.querySelector('.hero');
+  if(hero){
+    if(r.cover_url){
+      hero.style.backgroundImage = `linear-gradient(180deg, rgba(0,0,0,.25) 0%, var(--paper) 100%), url('${absUrl(r.cover_url)}')`;
+      hero.style.backgroundSize = 'cover'; hero.style.backgroundPosition = 'center';
+    } else if(r.theme==='grill'){
+      hero.classList.add('grill');
+    }
+    const logoBox = document.getElementById('heroLogo');
+    if(logoBox){
+      if(r.logo_url) logoBox.innerHTML = `<img src="${absUrl(r.logo_url)}" alt="${esc(r.name)}" style="height:110px;width:110px;object-fit:cover;border-radius:18px;display:block;border:1px solid rgba(255,255,255,.18);">`;
+      else if(r.theme==='grill') logoBox.innerHTML = FLAME_SVG;
+    }
+    const info = document.getElementById('heroInfo');
+    if(info){
+      const chips = [];
+      if(r.rating_text) chips.push(`<a class="infochip" href="${esc(r.google_review_url||r.maps_url||'#')}" target="_blank" rel="noopener">⭐ ${esc(r.rating_text)} · avaliar</a>`);
+      if(r.hours) chips.push(`<span class="infochip">🕒 ${esc(r.hours)}</span>`);
+      if(r.address) chips.push(`<a class="infochip" href="${esc(r.maps_url||'#')}" target="_blank" rel="noopener">📍 ${esc(r.address)}</a>`);
+      if(r.phone){
+        let dg = r.phone.replace(/\D/g,''); if(dg.length<=11) dg = '55'+dg;
+        const msg = 'Olá, '+r.name+'! 🔥 Vi o cardápio digital de vocês e quero reservar uma mesa para o fim de semana. Podem me ajudar?';
+        chips.push(`<a class="infochip" href="https://wa.me/${dg}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">💬 WhatsApp ${esc(r.phone)}</a>`);
+      }
+      if(r.instagram_url) chips.push(`<a class="infochip" href="${esc(r.instagram_url)}" target="_blank" rel="noopener">📸 Siga a gente no Instagram</a>`);
+      info.innerHTML = chips.join('');
+    }
+  }
+}
+const absUrl = u => !u ? null : (/^(https?:|data:|\/)/.test(u) ? u : '/'+u);
+async function loadRestaurant(slug){
+  try{
+    const rs = await sbGet(`restaurants?slug=eq.${encodeURIComponent(slug)}&select=*`);
+    if(!rs.length) return false;
+    clienteRestaurant = rs[0];
+    const cats = await sbGet(`categories?restaurant_id=eq.${clienteRestaurant.id}&select=*&order=position.asc`);
+    const its = await sbGet(`menu_items?restaurant_id=eq.${clienteRestaurant.id}&select=*`);
+    const catById = {}; catNameToId = {};
+    cats.forEach(c=>{ catById[c.id]=c.name; catNameToId[c.name]=c.id; });
+    categorias = cats.map(c=>c.name);
+    items = its.map(i=>{ const groups = cleanGroups(i.option_groups); return {
+      id:i.id, cat:catById[i.category_id]||'Outros', name:i.name, desc:i.description||'', groups,
+      base:Number(i.price)||0,
+      price: groups ? (groups.some(g=>g.options.some(o=>o.price>0)) ? 'A partir de ' : '')+fmtBRL(minGroupsPrice(groups,Number(i.price)))  : (Number(i.price)>0?'R$ '+Number(i.price).toFixed(2).replace('.',','):'Preço por kg'),
+      img:absUrl(i.img_url), video:!!i.video_url, vid:absUrl(i.video_url),
+      promo:!!i.promo, out:!i.available, tags:i.tags||[], category_id:i.category_id
+    };});
+    const rn = document.querySelector('.rname'); if(rn) rn.textContent = clienteRestaurant.name;
+    const rsub = document.querySelector('.rsub'); if(rsub && clienteRestaurant.tagline) rsub.textContent = clienteRestaurant.tagline;
+    if(urlArea==='cliente') applyRestaurantTheme(clienteRestaurant);
+    return true;
+  }catch(e){ console.error('loadRestaurant', e); return 'error'; }
+}
+const STAFF_AREA_LABEL = {garcom:'Área do Garçom', cozinha:'Área da Cozinha', dono:'Painel do Dono', painel:'Painel do Gerente'};
+function brandStaff(r){
+  if(!r) return;
+  applyRestaurantTheme(r);
+  const root = document.documentElement.style;
+  if(r.menu_bg_url){
+    root.setProperty('--staffbg', `linear-gradient(180deg, rgba(20,16,14,.9) 0%, rgba(20,16,14,.93) 100%), url('${absUrl(r.menu_bg_url)}')`);
+    document.body.dataset.hasBg = '1';
+  } else { document.body.dataset.hasBg = ''; }
+  ['garcom','cozinha','dono','painel'].forEach(id=>{
+    const el = document.getElementById(id); if(!el) return;
+    const old = el.querySelector(':scope > .sbrand'); if(old) old.remove();
+    const b = document.createElement('div'); b.className = 'sbrand';
+    if(r.cover_url) b.style.backgroundImage = `linear-gradient(90deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.35) 100%), url('${absUrl(r.cover_url)}')`;
+    const logo = r.logo_url ? `<img class="sblogo" src="${esc(absUrl(r.logo_url))}" alt="${esc(r.name)}">` : `<div class="sblogo">${FLAME_SVG}</div>`;
+    b.innerHTML = `${logo}<div class="sbtxt"><h2 class="sbname">${esc(r.name)}</h2><p class="sbarea">${STAFF_AREA_LABEL[id]}</p></div>`;
+    el.insertBefore(b, el.firstChild);
+  });
+  const h1 = document.querySelector('#painel .pheader h1'); if(h1) h1.textContent = 'Painel — ' + r.name;
+}
+const ROLE_AREA_BY_ROLE = {waiter:'garcom', kitchen:'cozinha', manager:'gerente', owner:'dono'};
+const ROLE_ALLOWED_AREAS = {waiter:['garcom'], kitchen:['cozinha'], manager:['gerente'], owner:['garcom','cozinha','gerente','dono']};
+async function enterStaffArea(area){
+  if(!session){ openAuth(area); return; }
+  await resolveMembership();
+  updateAccountBtn();
+  if(!area){
+    /* login genérico: o e-mail (conta) decide restaurante e área */
+    if(myRole){
+      if(myRestaurant){ await loadRestaurant(myRestaurant.slug); brandStaff(clienteRestaurant); }
+      setMode(ROLE_AREA_BY_ROLE[myRole] || 'gerente'); return;
+    }
+    if(isPlatformAdmin){ setMode('superadmin'); return; }
+  } else if(area==='superadmin'){
+    if(isPlatformAdmin){ setMode('superadmin'); return; }
+  } else if(myRole){
+    const allowed = isPlatformAdmin ? ['garcom','cozinha','gerente','dono'] : (ROLE_ALLOWED_AREAS[myRole] || []);
+    if(myRestaurant){ await loadRestaurant(myRestaurant.slug); brandStaff(clienteRestaurant); }
+    const target = allowed.includes(area) ? area : (ROLE_AREA_BY_ROLE[myRole] || allowed[0] || 'gerente');
+    setMode(target);
+    if(target!==area){
+      const em = (session&&session.user&&session.user.email)||'esta conta';
+      $('#toast').textContent = `A conta ${em} é de ${({waiter:'garçom',kitchen:'cozinha',manager:'gerente',owner:'dono'})[myRole]||myRole}: sem acesso a essa área. Saia e entre com a conta certa.`;
+      $('#toast').classList.add('on'); setTimeout(()=>$('#toast').classList.remove('on'),6000);
+    }
+    return;
+  }
+  if(isPlatformAdmin){ setMode('superadmin'); return; }
+  if(!myRole){ clearSession(); updateAccountBtn(); openAuth(area, 'Essa conta não tem acesso a nenhum restaurante. Peça ao dono para te adicionar na equipe ou entre com outra conta.'); return; }
+  if(myRestaurant){ await loadRestaurant(myRestaurant.slug); brandStaff(clienteRestaurant); }
+  const home = ROLE_AREA_BY_ROLE[myRole] || 'gerente';
+  setMode(home);
+}
+const hhmm = v => { const d=new Date(v); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); };
+let _audio = null;
+function beep(){
+  try{
+    _audio = _audio || new (window.AudioContext||window.webkitAudioContext)();
+    if(_audio.state==='suspended') _audio.resume();
+    const o = _audio.createOscillator(), g = _audio.createGain();
+    o.frequency.value = 880; g.gain.value = .25; o.connect(g); g.connect(_audio.destination);
+    o.start(); o.stop(_audio.currentTime + .25);
+  }catch(e){}
+}
+document.addEventListener('click', ()=>{ try{ if(_audio && _audio.state==='suspended') _audio.resume(); }catch(e){} }, {passive:true});
+const isOn = id => { const el=document.getElementById(id); return !!(el && el.classList.contains('on')); };
+function renderAll(){
+  if(isOn('painel')) renderCalls();
+  if(isOn('garcom')){ renderGChamados(); renderGOrders(); }
+  if(isOn('cozinha')) renderKOrders();
+  if(isOn('dono')) renderDonoStats();
+  if(isOn('superadmin')) renderSuperAdmin();
+}
+let lastSnap='', firstSync=true;
+let rtWS=null, rtOpen=false, rtTick=0, rtRetry=0, rtHB=null;
+function startRealtime(){
+  if(!SB_ON || !session || rtWS || typeof WebSocket==='undefined') return;
+  try{
+    const ws = new WebSocket(SB_URL.replace(/^http/,'ws')+'/realtime/v1/websocket?apikey='+SB_KEY+'&vsn=1.0.0');
+    rtWS = ws; let ref = 1;
+    const send = (topic,event,payload)=>ws.send(JSON.stringify({topic,event,payload,ref:String(ref++)}));
+    ws.onopen = async ()=>{
+      const tok = await freshToken();
+      send('realtime:staff-live','phx_join',{config:{broadcast:{ack:false,self:false},presence:{key:''},postgres_changes:[{event:'*',schema:'public',table:'calls'},{event:'*',schema:'public',table:'orders'}],private:false},access_token:tok});
+      rtHB = setInterval(()=>{ try{ send('phoenix','heartbeat',{}); }catch(e){} }, 25000);
+    };
+    ws.onmessage = ev=>{
+      let m; try{ m = JSON.parse(ev.data); }catch(e){ return; }
+      if(m.event==='phx_reply' && m.topic==='realtime:staff-live'){ rtOpen = !!(m.payload && m.payload.status==='ok'); if(rtOpen){ rtRetry=0; syncAll(); } }
+      else if(m.event==='postgres_changes'){ syncAll(); }
+    };
+    ws.onclose = ()=>{ rtOpen=false; rtWS=null; clearInterval(rtHB); if(session) setTimeout(startRealtime, Math.min(30000, 2000*(++rtRetry))); };
+    ws.onerror = ()=>{ try{ ws.close(); }catch(e){} };
+  }catch(e){ console.error('realtime', e); }
+}
+/* "dia de operação" começa às 06:00 (Brasília, UTC-3 => 09:00 UTC); chamados/pedidos antigos somem das telas */
+function bizDayStart(){ const H=36e5, D=24*H; return new Date(Math.floor((Date.now()-9*H)/D)*D+9*H); }
+async function syncAll(){
+  if(!SB_ON || !session || document.hidden) return;
+  try{
+    const [c,o] = await Promise.all([sb('calls?select=*&created_at=gte.'+encodeURIComponent(bizDayStart().toISOString())+'&order=created_at.desc&limit=100'), sb('orders?select=*&created_at=gte.'+encodeURIComponent(bizDayStart().toISOString())+'&order=created_at.desc&limit=100')]);
+    c.reverse(); o.reverse();
+    const snap = JSON.stringify([c,o]);
+    if(snap===lastSnap) return;
+    lastSnap = snap;
+    const before = calls.filter(x=>x.status==='new').length + orders.filter(x=>x.status==='novo').length;
+    calls = c.map(x=>({id:x.id, mesa:x.mesa, kind:x.kind, status:x.status, time:hhmm(x.created_at), ts:x.created_at, items:x.items, total:x.total}));
+    orders = o.map(x=>({id:x.id, mesa:x.mesa, items:x.items, status:x.status, time:hhmm(x.created_at)}));
+    renderAll();
+    const after = calls.filter(x=>x.status==='new').length + orders.filter(x=>x.status==='novo').length;
+    const staff = ['garcom','cozinha'].some(id=>document.getElementById(id).classList.contains('on'));
+    if(!firstSync && staff && after>before){ beep(); try{ navigator.vibrate && navigator.vibrate([200,100,200]); }catch(e){} }
+    if(staff){ const base = document.title.replace(/^\(\d+\)\s*/,''); document.title = (after>0 ? `(${after}) ` : '') + base; }
+    firstSync = false;
+  }catch(e){ console.error('sync', e); }
+}
+async function addMockCall(mesa, kind='garcom', items){
+  if(SB_ON){
+    if(!clienteRestaurant){ alert('Restaurante não carregado ainda, tente de novo em instantes.'); return; }
+    try{ await sb('calls','POST', items ? {mesa,kind,restaurant_id:clienteRestaurant.id,items} : {mesa,kind,restaurant_id:clienteRestaurant.id}, true); syncAll(); return true; }
+    catch(e){ console.error(e); alert(friendlyError(e)); return false; }
+  }
+  calls.push({id:Date.now(), mesa, kind, status:'new', time:hhmm(new Date())}); renderAll();
+}
+async function sendOrder(mesa, items){
+  if(SB_ON){
+    if(!clienteRestaurant){ alert('Restaurante não carregado ainda, tente de novo em instantes.'); return; }
+    try{ await sb('orders','POST',{mesa,items,restaurant_id:clienteRestaurant.id}, true); syncAll(); }
+    catch(e){ console.error(e); alert(friendlyError(e)); }
+    return;
+  }
+  orders.push({id:Date.now(), mesa, items, status:'novo', time:hhmm(new Date())}); renderAll();
+}
+async function markCall(id){
+  const c = calls.find(x=>x.id==id); if(c) c.status='done';
+  renderAll();
+  if(SB_ON){ try{ await sb('calls?id=eq.'+id,'PATCH',{status:'done', attended_at:new Date().toISOString(), attended_by:(session&&session.user)?session.user.id:null}); }catch(e){ console.error(e); } }
+}
+async function markOrder(id){
+  const o = orders.find(x=>x.id==id); if(o) o.status='done';
+  renderAll();
+  if(SB_ON){ try{ await sb('orders?id=eq.'+id,'PATCH',{status:'done', attended_at:new Date().toISOString()}); }catch(e){ console.error(e); } }
+}
+function renderCalls(){
+  $('#pv-chamados').innerHTML = calls.slice().reverse().map((c,ri)=>{
+    const i = calls.length-1-ri;
+    return `<div class="call-row ${c.status==='new'?'new':''}">
+      <div class="cl"><span class="mesa">Mesa ${esc(c.mesa)}</span><span class="time">${c.time} · ${callText(c)}</span></div>
+      ${c.status==='new'
+        ? `<button class="stbtn new" data-i="${i}">Marcar atendido</button>`
+        : `<button class="stbtn done">✓ Atendido</button>`}
+    </div>`;
+  }).join('') || '<p style="color:var(--muted);font-size:14px;">Nenhum chamado ainda.</p>';
+  $('#pv-chamados').querySelectorAll('.stbtn.new').forEach(b=>b.onclick=()=>{
+    markCall(calls[+b.dataset.i].id);
+  });
+}
+renderCalls();
+
+/* ---- painel: equipe ---- */
+const ROLE_LABEL = {waiter:'Garçom', kitchen:'Cozinha', manager:'Gerente', owner:'Dono'};
+async function renderTeam(){
+  const el = $('#teamList'); el.innerHTML = '<p style="color:var(--muted);font-size:14px;">Carregando...</p>';
+  if(!(SB_ON && myRestaurant)) return;
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/list_restaurant_team`, {method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+(await freshToken()), 'Content-Type':'application/json'}, body: JSON.stringify({p_restaurant_id: myRestaurant.id})});
+    const rows = await r.json();
+    if(!r.ok) throw new Error(rows.message||'Erro ao carregar equipe');
+    el.innerHTML = rows.map(m=>`
+      <div class="prow"><div class="pinfo"><b>${esc(m.email)}</b><span>${ROLE_LABEL[m.role]||m.role}${m.active?'':' · inativo'}</span></div>
+      <button class="icobtn" data-rm="${m.id}">🗑</button></div>`).join('') || '<p style="color:var(--muted);font-size:14px;">Só você por enquanto.</p>';
+    el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async ()=>{
+      if(!confirm('Remover essa pessoa da equipe?')) return;
+      try{ await sbWrite(`restaurant_members?id=eq.${b.dataset.rm}`,'DELETE',null,true); renderTeam(); }
+      catch(e){ alert('Erro: '+e.message); }
+    });
+  }catch(e){ el.innerHTML = `<p style="color:var(--ember);font-size:13px;">${e.message}</p>`; }
+}
+$('#team-add').onclick = async ()=>{
+  const email = $('#team-email').value.trim();
+  const role = $('#team-role').value;
+  $('#team-msg').textContent = '';
+  if(!email){ $('#team-msg').textContent = 'Digite um email.'; return; }
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/find_user_id_by_email`, {method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+(await freshToken()), 'Content-Type':'application/json'}, body: JSON.stringify({p_email: email})});
+    const uid = await r.json();
+    if(!r.ok) throw new Error(uid.message||'Erro');
+    if(!uid){ $('#team-msg').textContent = 'Essa pessoa ainda não criou uma conta. Peça pra ela entrar em qualquer área (ex: /garcom) e clicar em "Criar conta" primeiro.'; return; }
+    await sbWrite('restaurant_members','POST',{restaurant_id:myRestaurant.id, user_id:uid, role}, true);
+    $('#team-email').value='';
+    renderTeam();
+  }catch(e){ $('#team-msg').textContent = 'Erro: '+e.message; }
+};
+
+/* ---- painel: mesas + QR real ---- */
+function mesaUrl(m){ const r = myRestaurant || clienteRestaurant; return `${location.origin}/cliente/${r?r.slug:'casa-verde'}?mesa=${encodeURIComponent(m)}`; }
+async function renderQR(){
+  await loadMesas();
+  const wrap = $('#qgrid');
+  wrap.innerHTML = mesas.map(m=>`<div class="qcard"><div class="qc" id="qc-${m}"></div><div class="qname">Mesa ${m} <button class="icobtn" data-delmesa="${m}" style="margin-left:4px;">🗑</button></div><div class="qurl">${mesaUrl(m).replace(/^https?:\/\//,'')}</div></div>`).join('')
+    + `<button class="addmesa" id="addMesa">+ Adicionar mesa</button>`;
+  mesas.forEach(m=>{
+    const url = mesaUrl(m);
+    if(typeof QRCode==='undefined'){ document.getElementById('qc-'+m).innerHTML = `<a href="${esc(url)}" target="_blank" style="font-size:11px;word-break:break-all;">abrir link</a>`; return; }
+    new QRCode(document.getElementById('qc-'+m), {text:url, width:120, height:120, colorDark:'#1B1613', colorLight:'#ffffff'});
+  });
+  wrap.querySelectorAll('[data-delmesa]').forEach(b=>b.onclick=async ()=>{
+    const m = b.dataset.delmesa;
+    if(!confirm(`Excluir a Mesa ${m}? O QR Code dela deixa de funcionar.`)) return;
+    try{ await sbWrite(`tables?id=eq.${mesaRowId[m]}`,'DELETE',null,true); renderQR(); }
+    catch(e){ alert('Não consegui excluir: '+e.message); }
+  });
+  $('#addMesa').onclick = async ()=>{
+    const nums = mesas.map(Number).filter(n=>!isNaN(n));
+    const next = (nums.length?Math.max(...nums):0)+1;
+    const number = next.toString().padStart(2,'0');
+    try{ await sbWrite('tables','POST',{restaurant_id:myRestaurant.id, number}, true); renderQR(); }
+    catch(e){ alert('Não consegui criar a mesa: '+e.message); }
+  };
+}
+
+/* ---- painel: categorias ---- */
+function renderCatMgr(){
+  $('#catmgr').innerHTML = categorias.map((c,i)=>`<div class="catchip">${esc(c)}<button data-i="${i}">✕</button></div>`).join('')
+    + `<button class="addcat" id="addCat">+ Nova categoria</button>`;
+  $('#catmgr').querySelectorAll('button[data-i]').forEach(b=>b.onclick=async ()=>{
+    const cat = categorias[+b.dataset.i];
+    if(items.some(it=>it.cat===cat)){ alert('Mova ou remova os produtos dessa categoria antes de excluí-la.'); return; }
+    if(SB_ON && myRestaurant && catNameToId[cat]){
+      try{ await sbWrite(`categories?id=eq.${catNameToId[cat]}`, 'DELETE', null, true); }
+      catch(e){ alert('Não consegui excluir no banco: '+e.message); return; }
+    }
+    categorias.splice(+b.dataset.i,1); renderCatMgr(); renderProdList();
+  });
+  $('#addCat').onclick = async ()=>{
+    const name = prompt('Nome da nova categoria:');
+    if(!name || categorias.includes(name)) return;
+    if(SB_ON && myRestaurant){
+      try{
+        const [row] = await sbWrite('categories','POST',{restaurant_id:myRestaurant.id, name, position:categorias.length}, true);
+        catNameToId[name] = row.id;
+      }catch(e){ alert('Não consegui salvar no banco: '+e.message); return; }
+    }
+    categorias.push(name); renderCatMgr(); renderProdList();
+  };
+}
+
+/* ---- painel: produtos ---- */
+let editingId = null;
+function renderProdList(){
+  $('#prodlist').innerHTML = items.map(i=>`
+    <div class="prow">
+      <div class="pthumb" style="${i.img?`background-image:url('${i.img}')`:''}"></div>
+      <div class="pinfo"><b>${esc(i.name)}</b><span>${esc(i.cat)} · ${esc(dispPrice(i.price))}</span></div>
+      <label class="switch"><input type="checkbox" data-avail="${i.id}" ${i.out?'':'checked'}><span class="slider"></span></label>
+      <div class="pactions">
+        <button class="icobtn" data-edit="${i.id}">✎</button>
+        <button class="icobtn" data-del="${i.id}">🗑</button>
+      </div>
+    </div>`).join('') || '<p style="color:var(--muted);font-size:14px;">Nenhum produto cadastrado.</p>';
+  $('#prodlist').querySelectorAll('[data-avail]').forEach(cb=>cb.onchange=async ()=>{
+    const it = items.find(x=>x.id==cb.dataset.avail); it.out = !cb.checked;
+    renderGrid();
+    if(SB_ON && myRestaurant){
+      try{ await sbWrite(`menu_items?id=eq.${it.id}`,'PATCH',{available:cb.checked}, true); }
+      catch(e){ alert('Não consegui salvar no banco: '+e.message); it.out=!it.out; cb.checked=!cb.checked; renderGrid(); }
+    }
+  });
+  $('#prodlist').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openProdModal(+b.dataset.edit));
+  $('#prodlist').querySelectorAll('[data-del]').forEach(b=>b.onclick=async ()=>{
+    if(!confirm('Excluir este produto do cardápio?')) return;
+    const id = b.dataset.del;
+    if(SB_ON && myRestaurant){
+      try{ await sbWrite(`menu_items?id=eq.${id}`, 'DELETE', null, true); }
+      catch(e){ alert('Não consegui excluir no banco: '+e.message); return; }
+    }
+    items = items.filter(x=>x.id!=id); renderProdList(); renderGrid();
+  });
+}
+function fillCatSelect(){
+  $('#f-cat').innerHTML = categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+}
+function openProdModal(id){
+  editingId = id;
+  fillCatSelect();
+  const i = id ? items.find(x=>x.id===id) : {name:'',cat:categorias[0],price:'',desc:'',out:false};
+  $('#modalTitle').textContent = id ? 'Editar produto' : 'Novo produto';
+  $('#f-name').value = i.name; $('#f-cat').value = i.cat;
+  $('#f-price').value = i.groups ? '0' : (i.price||'').toString().replace('R$','').replace(',','.').trim().replace(/^Preço por kg$/,'0');
+  $('#f-desc').value = i.desc; $('#f-out').checked = !!i.out;
+  $('#f-photo').value = ''; $('#f-videofile').value = ''; $('#f-upload-msg').textContent = '';
+  $('#prodModalWrap').classList.add('on');
+}
+$('#addProd').onclick = ()=>openProdModal(null);
+$('#cancelProd').onclick = ()=> $('#prodModalWrap').classList.remove('on');
+function resizeImage(file, maxSide=1000, quality=.8){
+  return new Promise(resolve=>{
+    if(!/^image\/(jpeg|png|webp)$/.test(file.type)) return resolve(file);
+    const img = new Image(); const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      try{
+        const k = Math.min(1, maxSide/Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width*k); c.height = Math.round(img.height*k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(b=>{ URL.revokeObjectURL(url); resolve(b ? new File([b], file.name.replace(/\.\w+$/,'')+'.jpg', {type:'image/jpeg'}) : file); }, 'image/jpeg', quality);
+      }catch(e){ URL.revokeObjectURL(url); resolve(file); }
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+async function uploadMedia(file){
+  if(file.type.startsWith('image/')) file = await resizeImage(file);
+  if(file.size > 50*1024*1024) throw new Error('Arquivo muito grande (máximo 50 MB). Use um vídeo mais curto.');
+  const path = `${myRestaurant.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+  const r = await fetch(`${SB_URL}/storage/v1/object/menu-media/${path}`, {
+    method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+(await freshToken()), 'Content-Type':file.type||'application/octet-stream'}, body:file
+  });
+  if(!r.ok) throw new Error((await r.text())||'Falha no upload');
+  return `${SB_URL}/storage/v1/object/public/menu-media/${path}`;
+}
+$('#saveProd').onclick = async ()=>{
+  const name = $('#f-name').value.trim();
+  if(!name){ alert('Dê um nome ao prato.'); return; }
+  const priceNum = parseFloat(String($('#f-price').value||'0').replace(',','.'));
+  if(isNaN(priceNum) || priceNum<0 || priceNum>99999){ alert('Preço inválido. Use só números, por exemplo 39.90 (ou 0 para "Preço por kg").'); return; }
+  const cat = $('#f-cat').value;
+  const out = $('#f-out').checked;
+  const desc = $('#f-desc').value.trim();
+  const photoFile = $('#f-photo').files[0];
+  const videoFile = $('#f-videofile').files[0];
+  const btn = $('#saveProd'); btn.disabled = true; const bt = btn.textContent;
+  try{
+    let imgUrl, vidUrl;
+    if(photoFile){ btn.textContent='Enviando foto...'; imgUrl = await uploadMedia(photoFile); }
+    if(videoFile){ btn.textContent='Enviando vídeo...'; vidUrl = await uploadMedia(videoFile); }
+    btn.textContent='Salvando...';
+    const data = { name, cat, price: priceNum>0 ? 'R$ '+priceNum.toFixed(2).replace('.',',') : 'Preço por kg', desc, out,
+      img: imgUrl !== undefined ? imgUrl : undefined, vid: vidUrl !== undefined ? vidUrl : undefined };
+    if(SB_ON && myRestaurant){
+      const payload = {category_id:catNameToId[cat]||null, name, description:desc, price:priceNum, available:!out};
+      if(imgUrl!==undefined) payload.img_url = imgUrl;
+      if(vidUrl!==undefined){ payload.video_url = vidUrl; }
+      if(editingId){
+        await sbWrite(`menu_items?id=eq.${editingId}`, 'PATCH', payload, true);
+        const it = items.find(x=>x.id===editingId);
+        Object.assign(it, {name, cat, desc, out}, it.groups?{}:{price:data.price});
+        if(imgUrl!==undefined) it.img = imgUrl;
+        if(vidUrl!==undefined){ it.vid = vidUrl; it.video = true; }
+      } else {
+        const [row] = await sbWrite('menu_items','POST', {restaurant_id:myRestaurant.id, ...payload, tags:[], promo:false}, true);
+        items.push({id:row.id, img:imgUrl||null, vid:vidUrl||null, video:!!vidUrl, promo:false, tags:[], name, cat, price:data.price, desc, out});
+      }
+    } else {
+      if(editingId){ const it = items.find(x=>x.id===editingId); Object.assign(it, {name, cat, desc, out}, it.groups?{}:{price:data.price}); }
+      else items.push({id:Date.now(), img:null, vid:null, video:false, promo:false, tags:[], name, cat, price:data.price, desc, out});
+    }
+    $('#prodModalWrap').classList.remove('on');
+    renderProdList(); renderGrid();
+  }catch(e){ $('#f-upload-msg').textContent = 'Erro: '+e.message; btn.disabled=false; btn.textContent=bt; return; }
+  btn.disabled=false; btn.textContent=bt;
+};
+
+document.querySelectorAll('.ptab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.ptab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.querySelectorAll('.pview').forEach(v=>v.classList.remove('on'));
+  document.getElementById('pv-'+t.dataset.pv).classList.add('on');
+  if(t.dataset.pv==='resumo') renderResumo(true);
+  if(t.dataset.pv==='mesas') renderQR();
+  if(t.dataset.pv==='cardapio'){ renderCatMgr(); renderProdList(); }
+  if(t.dataset.pv==='equipe') renderTeam();
+});
+/* ---- Resumo: pedidos/chamados no dia, mês e ano (fuso de Brasília) ---- */
+async function countRows(table, since, extra){
+  const tok = session ? await freshToken() : SB_KEY;
+  const q = `${table}?restaurant_id=eq.${myRestaurant.id}&created_at=gte.${encodeURIComponent(since)}${extra||''}&select=id`;
+  const r = await fetch(SB_URL+'/rest/v1/'+q, {method:'HEAD', headers:{apikey:SB_KEY, Authorization:'Bearer '+tok, Prefer:'count=exact', Range:'0-0'}});
+  if(!r.ok) throw new Error('count '+r.status);
+  const cr = r.headers.get('content-range')||''; return parseInt(cr.split('/')[1])||0;
+}
+let _lastResumo = 0;
+async function renderResumo(force){
+  const box = document.getElementById('pv-resumo'); if(!box) return;
+  if(!(SB_ON && myRestaurant)){ box.innerHTML='<p style="color:var(--muted);font-size:14px;">Resumo disponível ao entrar com a conta do restaurante.</p>'; return; }
+  if(!force && Date.now()-_lastResumo < 30000) return; _lastResumo = Date.now();
+  if(!box.innerHTML) box.innerHTML = '<p style="color:var(--muted);font-size:14px;">Calculando...</p>';
+  const L = new Date(Date.now()-3*36e5), y=L.getUTCFullYear(), m=L.getUTCMonth();
+  const periods = [
+    ['Hoje (desde 06:00)', bizDayStart().toISOString()],
+    ['Este mês', new Date(Date.UTC(y,m,1,3)).toISOString()],
+    ['Este ano', new Date(Date.UTC(y,0,1,3)).toISOString()]
+  ];
+  try{
+    const rows = await Promise.all(periods.map(async ([label,since])=>{
+      const [o,c,b] = await Promise.all([countRows('orders',since), countRows('calls',since,'&kind=neq.conta'), countRows('calls',since,'&kind=eq.conta')]);
+      return {label,o,c,b};
+    }));
+    box.innerHTML = `<div style="display:grid;gap:12px;">` + rows.map(r=>`
+      <div class="statcard" style="text-align:left;padding:16px;">
+        <div class="slabel" style="margin-bottom:10px;font-weight:700;">${esc(r.label)}</div>
+        <div style="display:flex;gap:22px;flex-wrap:wrap;">
+          <div><div class="snum">${r.o}</div><div class="slabel">Pedidos</div></div>
+          <div><div class="snum">${r.c}</div><div class="slabel">Chamados</div></div>
+          <div><div class="snum">${r.b}</div><div class="slabel">Contas pedidas</div></div>
+        </div>
+      </div>`).join('') + `</div><p style="color:var(--muted);font-size:12px;margin-top:10px;">Pedidos = enviados pela sacola. Chamados = garçom, talher, água etc. O "dia" começa às 06:00; mês e ano contam a partir da meia-noite.</p>`;
+  }catch(e){ console.error('resumo', e); box.innerHTML='<p style="color:var(--muted);font-size:14px;">Não consegui carregar o resumo agora. Tente de novo em instantes.</p>'; }
+}
+renderCatMgr(); renderProdList();
+
+/* ---- impressão dos QR codes ---- */
+$('#printQR').onclick = ()=>{
+  if(typeof QRCode==='undefined'){ alert('Não consegui carregar o gerador de QR Code. Verifique a internet e recarregue a página.'); return; }
+  let area = document.getElementById('printArea');
+  if(!area){ area = document.createElement('div'); area.id='printArea'; document.body.appendChild(area); }
+  area.innerHTML = `<div class="printgrid">${mesas.map(m=>`
+    <div class="printcard">
+      <h4>${esc((myRestaurant||clienteRestaurant||{name:'Cardápio Digital'}).name)}</h4>
+      <div class="pmesa">MESA ${m}</div>
+      <div id="pqr-${m}"></div>
+      <div class="phint">Aponte a câmera para ver o cardápio</div>
+    </div>`).join('')}</div>`;
+  mesas.forEach(m=>{
+    document.getElementById('pqr-'+m).innerHTML='';
+    new QRCode(document.getElementById('pqr-'+m), {text:mesaUrl(m), width:150, height:150});
+  });
+  setTimeout(()=>window.print(), 150);
+};
+/* ---- link direto por área: ?area=garcom trava nessa área, sem seletor visível ---- */
+const pathParts = location.pathname.replace(/^\/|\/$/g,'').split('/');
+const qArea = new URLSearchParams(location.search).get('area');
+const urlArea = qArea || pathParts[0];
+const urlSlug = pathParts[1] || 'casa-verde';
+let billClosedShown = false;
+async function checkTableStatus(){
+  if(!(SB_ON && clienteRestaurant)) return;
+  try{
+    const rows = await sbGet(`tables?restaurant_id=eq.${clienteRestaurant.id}&number=eq.${encodeURIComponent(currentMesa)}&select=status`);
+    if(rows.length && rows[0].status==='closed' && !billClosedShown){
+      billClosedShown = true;
+      const links = [];
+      if(clienteRestaurant.instagram_url) links.push(`<a href="${clienteRestaurant.instagram_url}" target="_blank" rel="noopener" class="callbtn ghost" style="display:block;text-decoration:none;">📷 Siga a gente no Instagram</a>`);
+      if(clienteRestaurant.google_review_url) links.push(`<a href="${clienteRestaurant.google_review_url}" target="_blank" rel="noopener" class="callbtn" style="display:block;text-decoration:none;">⭐ Avalie a gente no Google</a>`);
+      $('#closedLinks').innerHTML = links.join('');
+      $('#closedWrap').classList.add('on');
+    }
+  }catch(e){ console.error('checkTableStatus', e); }
+}
+async function boot(){
+  setTimeout(()=>{ const a=document.getElementById('authWrap'); if(!(a&&a.classList.contains('on'))) document.body.classList.remove('booting'); }, 10000);
+  if(urlArea==='entrar' || urlArea==='login'){
+    $('#roleBar').style.display = 'none';
+    await enterStaffArea(null);
+    return;
+  }
+  if(!ROLE_VIEWS.includes(urlArea)){ document.body.classList.remove('booting'); return; }
+  $('#roleBar').style.display = 'none';
+  if(urlArea==='cliente'){
+    let mesaOk = !!new URLSearchParams(location.search).get('mesa');
+    let found = true, netErr = false;
+    if(SB_ON){
+      const lr = await loadRestaurant(urlSlug);
+      found = lr===true; netErr = lr==='error';
+      if(found && clienteRestaurant && mesaOk){
+        try{
+          const rows = await sbGet(`tables?restaurant_id=eq.${clienteRestaurant.id}&number=eq.${encodeURIComponent(currentMesa)}&select=number`);
+          mesaOk = rows.length>0;
+        }catch(e){ console.error('mesa check', e); }
+      }
+      if(found && clienteRestaurant && mesaOk){
+        try{ await sbWrite(`tables?restaurant_id=eq.${clienteRestaurant.id}&number=eq.${encodeURIComponent(currentMesa)}`,'PATCH',{status:'open'}); }catch(e){ console.error('reopen mesa', e); }
+        setInterval(()=>{ if(!document.hidden) checkTableStatus(); }, 8000);
+      }
+    }
+    if(!found){ items = []; categorias = []; }
+    if(!found || !mesaOk){
+      ['.footerbar','#quickRow'].forEach(sel=>{ const el=document.querySelector(sel); if(el) el.style.display='none'; });
+      const pill = $('#mesaPill'); if(pill) pill.textContent = found ? tr('browse_pill') : '';
+      window.__browseOnly = true;
+    }
+    applyLang(); renderCats(); renderGrid();
+    if(!found){ $('#grid').innerHTML = netErr
+      ? '<p style="color:var(--muted);font-size:15px;padding:30px 4px;text-align:center;">Sem conexão com a internet agora.<br>Verifique o sinal e <a href="" onclick="location.reload();return false;" style="color:var(--ember,#ff6a3d);">tente de novo</a>.</p>'
+      : '<p style="color:var(--muted);font-size:15px;padding:30px 4px;text-align:center;">Cardápio não encontrado.<br>Confira o link ou escaneie de novo o QR Code da sua mesa.</p>'; }
+    else if(!mesaOk){ $('#grid').insertAdjacentHTML('beforebegin',`<p style="margin:12px 20px 0;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.08);color:var(--ink);font-size:13px;">${tr('browse_only')}</p>`); }
+    setMode('cliente');
+  } else {
+    await enterStaffArea(urlArea);
+  }
+}
+boot();
+try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{}); }catch(e){}
+
+syncAll();
+if(SB_ON){ setInterval(()=>{ if(!rtOpen || (++rtTick % 4 === 0)) syncAll(); }, 2500); document.addEventListener('visibilitychange', ()=>{ syncAll(); }); }
+</script>
+</body>
+</html>
